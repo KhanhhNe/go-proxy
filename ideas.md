@@ -1,0 +1,6 @@
+- ssh support
+- rotating
+- services integration
+- rotating by app
+- support all protocols?
+- proxy type conversion

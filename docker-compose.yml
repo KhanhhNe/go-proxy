@@ -1,0 +1,21 @@
+services:
+  ssh-server:
+    build:
+      context: .
+      dockerfile: ssh-server.Dockerfile
+    image: ssh-server:latest
+    container_name: ssh-server
+    ports:
+      - "2222:22"
+    restart: unless-stopped
+    networks:
+      - ipv6_native
+
+networks:
+  ipv6_native:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.gateway_mode_ipv6: "routed"
+    enable_ipv6: true
+    ipam:
+      driver: default

@@ -1,0 +1,22 @@
+178.66.14.178|root|admin|Russian Federation (RU)|190990|RU|Saint Petersburg|Sankt-Peterburg|+03:00|
+178.66.14.148|root|admin|Russian Federation (RU)|190990|RU|Saint Petersburg|Sankt-Peterburg|+03:00|
+178.45.211.53|support|support|Russian Federation (RU)|410000|RU|Saratov|Saratovskaya oblast’|+04:00|
+178.66.14.12|root|admin|Russian Federation (RU)|190990|RU|Saint Petersburg|Sankt-Peterburg|+03:00|
+79.111.128.40|admin|admin|Russian Federation (RU)|170970|RU|Tver’|Tverskaya oblast’|+03:00|
+88.147.187.12|support|support|Russian Federation (RU)|413244|RU|Repnoye|Saratovskaya oblast’|+04:00|
+85.140.185.120|admin|admin|Russian Federation (RU)|101990|RU|Moscow|Moskva|+03:00|
+95.84.59.165|support|support|Russian Federation (RU)|410000|RU|Saratov|Saratovskaya oblast’|+04:00|
+5.141.80.56|support|admin|Russian Federation (RU)|629309|RU|Novyy Urengoy|Yamalo-Nenetskiy avtonomnyy okrug|+05:00|
+95.84.6.88|support|support|Russian Federation (RU)|413270|RU|Rovnoye|Saratovskaya oblast’|+04:00|
+178.216.165.187|user|user|Russian Federation (RU)|142507|RU|Pavlovskiy Posad|Moskovskaya oblast’|+03:00|
+82.208.65.46|root|admin|Russian Federation (RU)|101990|RU|Moscow|Moskva|+03:00|
+85.140.185.86|admin|admin|Russian Federation (RU)|101990|RU|Moscow|Moskva|+03:00|
+195.239.183.246|user|user|Russian Federation (RU)|305000|RU|Kursk|Kurskaya oblast’|+03:00|
+178.66.14.99|root|admin|Russian Federation (RU)|190990|RU|Saint Petersburg|Sankt-Peterburg|+03:00|
+95.84.4.24|support|support|Russian Federation (RU)|410000|RU|Saratov|Saratovskaya oblast’|+04:00|
+81.90.9.139|user|user|Russian Federation (RU)|141707|RU|Dolgoprudnyy|Moskovskaya oblast’|+03:00|
+79.111.139.184|admin|admin|Russian Federation (RU)|170970|RU|Tver’|Tverskaya oblast’|+03:00|
+46.167.90.14|support|support|Russian Federation (RU)|457401|RU|Agapovka|Chelyabinskaya oblast’|+05:00|
+178.69.126.202|admin|admin|Russian Federation (RU)|161050|RU|Shuyskoye|Vologodskaya oblast’|+03:00|
+95.84.41.163|support|support|Russian Federation (RU)|412270|RU|Romanovka|Saratovskaya oblast’|+04:00|
+127.0.0.1|ubuntu|ubuntu|Russian Federation (RU)|412270|RU|Romanovka|Saratovskaya oblast’|+04:00|
