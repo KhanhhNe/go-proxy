@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"io"
 	"net"
+	"net/http"
 	"sync"
 
 	"braces.dev/errtrace"
@@ -49,6 +50,15 @@ func WriteBytesFlush(w *bufio.Writer, b ...[]byte) error {
 
 func WriteStringFlush(w *bufio.Writer, s string) error {
 	_, err := w.WriteString(s)
+	if err != nil {
+		return errtrace.Wrap(err)
+	}
+
+	return errtrace.Wrap(w.Flush())
+}
+
+func WriteResponseFlush(w *bufio.Writer, r http.Response) error {
+	err := r.Write(w)
 	if err != nil {
 		return errtrace.Wrap(err)
 	}

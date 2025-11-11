@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"go-proxy/common"
-	"go-proxy/protocol/prx_http"
 	"go-proxy/protocol/socks5"
 	"go-proxy/rwutil"
 	"net"
@@ -142,6 +141,12 @@ func (l *LocalListener) HandleHttp(conn *IncomingConnection, reader *bufio.Reade
 		return errtrace.Wrap(err)
 	}
 
+	res := http.Response{
+		Proto:      req.Proto,
+		ProtoMajor: req.ProtoMajor,
+		ProtoMinor: req.ProtoMinor,
+	}
+
 	target := ""
 
 	if req.Method == "CONNECT" {
@@ -150,10 +155,8 @@ func (l *LocalListener) HandleHttp(conn *IncomingConnection, reader *bufio.Reade
 		uri, err := url.Parse(req.RequestURI)
 		if err != nil {
 			// Wrong URL format passed - result in 400 Bad Request
-			err := rwutil.WriteStringFlush(
-				writer,
-				prx_http.MSG_BadRequest(),
-			)
+			res.StatusCode = http.StatusBadRequest
+			err := rwutil.WriteResponseFlush(writer, res)
 			return errtrace.Wrap(err)
 		}
 
@@ -161,10 +164,8 @@ func (l *LocalListener) HandleHttp(conn *IncomingConnection, reader *bufio.Reade
 			// Non-absolute request URI passed
 			// (expect absolute URI for proxy server to proceed)
 			// - result in 400 Bad Request
-			err := rwutil.WriteStringFlush(
-				writer,
-				prx_http.MSG_BadRequest(),
-			)
+			res.StatusCode = http.StatusBadRequest
+			err := rwutil.WriteResponseFlush(writer, res)
 			return errtrace.Wrap(err)
 		}
 
@@ -181,22 +182,11 @@ func (l *LocalListener) HandleHttp(conn *IncomingConnection, reader *bufio.Reade
 
 	if l.Auth != nil {
 		auth := req.Header.Get("proxy-authorization")
-		if auth == "" {
-			err := rwutil.WriteStringFlush(
-				writer,
-				prx_http.MSG_ProxyAuthRequired(),
-			)
-			if err != nil {
-				return errtrace.Wrap(err)
-			}
-			return nil
-		}
 
-		if !l.Auth.VerifyBasic(auth) {
-			err := rwutil.WriteStringFlush(
-				writer,
-				prx_http.MSG_ProxyAuthRequired(),
-			)
+		if auth == "" || !l.Auth.VerifyBasic(auth) {
+			res.StatusCode = http.StatusProxyAuthRequired
+			res.Header.Add("proxy-authenticate", "Basic realm=\"GoProxy\"")
+			err := rwutil.WriteResponseFlush(writer, res)
 			if err != nil {
 				return errtrace.Wrap(err)
 			}
@@ -216,10 +206,8 @@ func (l *LocalListener) HandleHttp(conn *IncomingConnection, reader *bufio.Reade
 	}
 	remoteConn, err := s.Server.Connect(target)
 	if err != nil {
-		er := rwutil.WriteStringFlush(
-			writer,
-			prx_http.MSG_BadGateway(),
-		)
+		res.StatusCode = http.StatusBadGateway
+		er := rwutil.WriteResponseFlush(writer, res)
 		if er != nil {
 			return errtrace.Wrap(er)
 		}
@@ -230,10 +218,9 @@ func (l *LocalListener) HandleHttp(conn *IncomingConnection, reader *bufio.Reade
 	defer remoteConn.Close()
 
 	if req.Method == "CONNECT" {
-		err := rwutil.WriteStringFlush(
-			writer,
-			prx_http.MSG_ConnectionEtablished(),
-		)
+		res.StatusCode = http.StatusOK
+		res.Status = "Connection Etablished"
+		err := rwutil.WriteResponseFlush(writer, res)
 		if err != nil {
 			return errtrace.Wrap(err)
 		}

@@ -38,7 +38,6 @@ func (a *App) startup(ctx context.Context) {
 	})
 
 	for _, s := range ListenerServerManager.Servers {
-		fmt.Println(s)
 		switch s.Server.Port {
 		case 2222:
 			s.AddTags("ssh")
@@ -50,6 +49,7 @@ func (a *App) startup(ctx context.Context) {
 			s.AddTags("http")
 			s.Server.Protocols[proxyserver.PROTO_Http] = true
 		}
+		fmt.Println(s)
 	}
 
 	ListenerServerManager.AddListeners([]*LocalListener{
