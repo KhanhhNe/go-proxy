@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-proxy/common"
 	"net"
+	"strings"
 	"time"
 
 	"braces.dev/errtrace"
@@ -58,10 +59,25 @@ func NewServer(host string, port int, auth *common.ProxyAuth) *Server {
 func (s *Server) String() string {
 	protos := ""
 	if s.Protocols[PROTO_Http] {
+		protos += ",http"
+	}
+	if s.Protocols[PROTO_Socks5] {
+		protos += ",socks5"
+	}
+	if s.Protocols[PROTO_Ssh] {
 		protos += ",ssh"
 	}
+	protos = strings.TrimLeft(protos, ",")
+	if protos == "" {
+		protos = "no_proto"
+	}
 
-	return fmt.Sprintf("<server proto=%s host=%s port=%d auth=%s>", protos, s.Host, s.Port, s.Auth)
+	return fmt.Sprintf("%s %s:%d", protos, s.Host, s.Port)
+}
+
+func (s *Server) Printlnf(f string, a ...any) {
+	f = fmt.Sprintf("[ProxyServer %s] ", s.String()) + f + "\n"
+	fmt.Printf(f, a...)
 }
 
 func (s *Server) Prepare() error {

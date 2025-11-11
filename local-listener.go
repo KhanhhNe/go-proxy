@@ -200,9 +200,11 @@ func (l *LocalListener) HandleHttp(conn *IncomingConnection, reader *bufio.Reade
 	if err != nil {
 		return errtrace.Wrap(err)
 	}
-	err = s.Server.Prepare()
-	if err != nil {
-		return errtrace.Wrap(err)
+	if !s.Server.IsPrepared() {
+		err = s.Server.Prepare()
+		if err != nil {
+			return errtrace.Wrap(err)
+		}
 	}
 	remoteConn, err := s.Server.Connect(target)
 	if err != nil {
@@ -306,9 +308,11 @@ func (l *LocalListener) HandleSocks5(conn *IncomingConnection, reader *bufio.Rea
 			if err != nil {
 				return errtrace.Wrap(err)
 			}
-			err = s.Server.Prepare()
-			if err != nil {
-				return errtrace.Wrap(err)
+			if !s.Server.IsPrepared() {
+				err = s.Server.Prepare()
+				if err != nil {
+					return errtrace.Wrap(err)
+				}
 			}
 			remoteConn, err := s.Server.Connect(net.JoinHostPort(msg.DstAddr, strconv.Itoa(int(msg.DstPort))))
 
