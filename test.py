@@ -29,21 +29,21 @@ for t, port in ps.items():
     print(f"Testing {t} - {port}")
 
     print("HTTP - HTTP")
-    print(s.get('http://api.ipify.org', proxies=dict(http=f'http://khanh:khanh@localhost:{port}')))
+    print(s.get('http://api.ipify.org', proxies=dict(http=f'http://khanh:khanh@localhost:{port}'), timeout=5))
     print()
     s.close()
 
     print("HTTPS - HTTP")
-    print(s.get('https://api.ipify.org', proxies=dict(https=f'http://khanh:khanh@localhost:{port}')))
+    print(s.get('https://api.ipify.org', proxies=dict(https=f'http://khanh:khanh@localhost:{port}'), timeout=5))
     print()
     s.close()
     
     print("HTTPS - SOCKS5")
-    print(s.get('https://api.ipify.org', proxies=dict(https=f'socks5://khanh:khanh@localhost:{port}')))
+    print(s.get('https://api.ipify.org', proxies=dict(https=f'socks5://khanh:khanh@localhost:{port}'), timeout=5))
     print()
     s.close()
 
     print("HTTP - SOCKS5")
-    print(s.get('http://api.ipify.org', proxies=dict(http=f'socks5://khanh:khanh@localhost:{port}')))
+    print(s.get('http://api.ipify.org', proxies=dict(http=f'socks5://khanh:khanh@localhost:{port}'), timeout=5))
     print()
     s.close()

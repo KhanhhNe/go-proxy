@@ -75,7 +75,8 @@ func FindTcpProcess(addr string) (*netstat.Process, error) {
 }
 
 func (l *LocalListener) Serve(ctx context.Context, cb DoneCallback) {
-	listener, err := net.Listen("tcp", net.JoinHostPort("0.0.0.0", strconv.Itoa(l.Port)))
+	config := net.ListenConfig{}
+	listener, err := config.Listen(ctx, "tcp", net.JoinHostPort("0.0.0.0", strconv.Itoa(l.Port)))
 	if err != nil {
 		cb(errtrace.Wrap(err))
 		return
@@ -84,71 +85,54 @@ func (l *LocalListener) Serve(ctx context.Context, cb DoneCallback) {
 
 	l.Printlnf("Listening at %d", l.Port)
 
-	var acceptConn chan net.Conn
-	var acceptErr chan error
-
 	running := true
 
 	for running {
+		netConn, err := l.Listener.Accept()
+		if err != nil {
+			cb(errtrace.Wrap(err))
+		}
+
 		go func() {
-			netConn, err := l.Listener.Accept()
-			if err != nil {
-				acceptErr <- errtrace.Wrap(err)
+			defer netConn.Close()
+
+			addr := netConn.RemoteAddr().String()
+			proc, err := FindTcpProcess(addr)
+
+			if err != nil || proc == nil {
+				l.Printlnf("Cannot find associated TCP socks for port %s", addr)
+				if err != nil {
+					l.Printlnf("Error: %+v", err)
+				}
 			} else {
-				acceptConn <- netConn
+				l.Printlnf("Found process: %d %s for %s", proc.Pid, proc.Name, addr)
+			}
+
+			conn := &IncomingConnection{
+				Conn:    netConn,
+				Process: proc,
+			}
+
+			reader := bufio.NewReader(netConn)
+			writer := bufio.NewWriter(netConn)
+
+			version, err := reader.Peek(1)
+			if err != nil {
+				l.Printlnf("Proxy handler error: %+v", err)
+			}
+
+			switch version[0] {
+			case socks5.VER_SOCKS5:
+				err = l.HandleSocks5(conn, reader, writer)
+			default:
+				// If not recognized, it could be HTTP request
+				err = l.HandleHttp(conn, reader, writer)
+			}
+
+			if err != nil {
+				l.Printlnf("Proxy handler error: %+v", err)
 			}
 		}()
-
-		select {
-		case err := <-acceptErr:
-			cb(err)
-			continue
-		case <-ctx.Done():
-			running = false
-			l.Printlnf("Stopping server. Existing connections will finish first")
-			continue
-		case netConn := <-acceptConn:
-			go func() {
-				defer netConn.Close()
-
-				addr := netConn.RemoteAddr().String()
-				proc, err := FindTcpProcess(addr)
-
-				if err != nil || proc == nil {
-					l.Printlnf("Cannot find associated TCP socks for port %s", addr)
-					if err != nil {
-						l.Printlnf("Error: %+v", err)
-					}
-				} else {
-					l.Printlnf("Found process: %d %s for %s", proc.Pid, proc.Name, addr)
-				}
-
-				conn := &IncomingConnection{
-					Conn:    netConn,
-					Process: proc,
-				}
-
-				reader := bufio.NewReader(netConn)
-				writer := bufio.NewWriter(netConn)
-
-				version, err := reader.Peek(1)
-				if err != nil {
-					l.Printlnf("Proxy handler error: %+v", err)
-				}
-
-				switch version[0] {
-				case socks5.VER_SOCKS5:
-					err = l.HandleSocks5(conn, reader, writer)
-				default:
-					// If not recognized, it could be HTTP request
-					err = l.HandleHttp(conn, reader, writer)
-				}
-
-				if err != nil {
-					l.Printlnf("Proxy handler error: %+v", err)
-				}
-			}()
-		}
 	}
 }
 

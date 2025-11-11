@@ -2,56 +2,24 @@ package proxyserver
 
 import (
 	"bufio"
-	"fmt"
-	"go-proxy/common"
 	"go-proxy/protocol/socks5"
 	"net"
 	"strconv"
-	"time"
 
 	"braces.dev/errtrace"
 )
 
-type Socks5Server struct {
-	Host    string
-	Port    int
-	Timeout time.Duration
-	Auth    *common.ProxyAuth
+type ServerSocks5State struct {
 }
 
-type Socks5Conn struct {
-	net.Conn
-
-	Reader *bufio.Reader
-	Writer *bufio.Writer
-}
-
-// Enforce type check
-var _ Server = &Socks5Server{}
-
-func NewSocks5ProxyServer(host string, port int, auth *common.ProxyAuth) *Socks5Server {
-	return &Socks5Server{
-		Host:    host,
-		Port:    port,
-		Auth:    auth,
-		Timeout: 30 * time.Second,
-	}
-}
-
-func (s *Socks5Server) String() string {
-	return fmt.Sprintf("<%s host=%s port=%d auth=%s >", s.Type(), s.Host, s.Port, s.Auth)
-}
-
-func (s *Socks5Server) Type() string { return "socks5" }
-
-func (s *Socks5Server) Prepare() error {
+func (s *Server) prepareSocks5() error {
 	return nil // No preparation needed
 }
 
-func (s *Socks5Server) Prepared() bool { return true }
+func (s *Server) isPreparedSocks5() bool { return true }
 
-func (s *Socks5Server) Connect(addr string) (net.Conn, error) {
-	host, port, err := net.SplitHostPort(addr)
+func (s *Server) connectSocks5(target string) (net.Conn, error) {
+	host, port, err := net.SplitHostPort(target)
 	if err != nil {
 		return nil, errtrace.Wrap(err)
 	}
@@ -73,7 +41,10 @@ func (s *Socks5Server) Connect(addr string) (net.Conn, error) {
 		return nil, errtrace.Wrap(err)
 	}
 
-	conn, err := s.ConnectAndAuth()
+	conn, err := s.connectAndAuthSocks5()
+	reader := bufio.NewReader(conn)
+	writer := bufio.NewWriter(conn)
+
 	success := false
 	defer func() {
 		if !success {
@@ -85,7 +56,7 @@ func (s *Socks5Server) Connect(addr string) (net.Conn, error) {
 		return nil, errtrace.Wrap(err)
 	}
 
-	err = socks5.Write_Command(conn.Writer, socks5.MSG_Command{
+	err = socks5.Write_Command(writer, socks5.MSG_Command{
 		Version:  socks5.VER_SOCKS5,
 		Command:  socks5.CMD_Connect,
 		Reserved: 0x00,
@@ -97,7 +68,7 @@ func (s *Socks5Server) Connect(addr string) (net.Conn, error) {
 		return nil, errtrace.Wrap(err)
 	}
 
-	msg, err := socks5.Read_CommandReply(conn.Reader)
+	msg, err := socks5.Read_CommandReply(reader)
 	if err != nil {
 		return nil, errtrace.Wrap(err)
 	}
@@ -109,24 +80,21 @@ func (s *Socks5Server) Connect(addr string) (net.Conn, error) {
 	return conn, nil
 }
 
-func (s *Socks5Server) ConnectAndAuth() (*Socks5Conn, error) {
+func (s *Server) connectAndAuthSocks5() (net.Conn, error) {
 	netConn, err := net.Dial("tcp", net.JoinHostPort(s.Host, strconv.Itoa(s.Port)))
 	if err != nil {
 		return nil, errtrace.Wrap(err)
 	}
 
-	conn := Socks5Conn{
-		Conn:   netConn,
-		Reader: bufio.NewReader(netConn),
-		Writer: bufio.NewWriter(netConn),
-	}
+	reader := bufio.NewReader(netConn)
+	writer := bufio.NewWriter(netConn)
 
 	auth := socks5.AUTH_NoAuth
 	if s.Auth != nil {
 		auth = socks5.AUTH_UsernamePassword
 	}
 
-	err = socks5.Write_ClientConnect(conn.Writer, socks5.MSG_ClientConnect{
+	err = socks5.Write_ClientConnect(writer, socks5.MSG_ClientConnect{
 		Version:  socks5.VER_SOCKS5,
 		NMethods: 1,
 		Methods:  []byte{auth},
@@ -135,7 +103,7 @@ func (s *Socks5Server) ConnectAndAuth() (*Socks5Conn, error) {
 		return nil, errtrace.Wrap(err)
 	}
 
-	msg, err := socks5.Read_SelectMethod(conn.Reader)
+	msg, err := socks5.Read_SelectMethod(reader)
 	if err != nil {
 		return nil, errtrace.Wrap(err)
 	}
@@ -144,7 +112,7 @@ func (s *Socks5Server) ConnectAndAuth() (*Socks5Conn, error) {
 	}
 
 	if s.Auth != nil {
-		err = socks5.Write_AuthUserPass(conn.Writer, socks5.MSG_AuthUserPass{
+		err = socks5.Write_AuthUserPass(writer, socks5.MSG_AuthUserPass{
 			Version:  socks5.AUTH_VER_UsernamePassword,
 			UserLen:  byte(len(s.Auth.Username)),
 			Username: s.Auth.Username,
@@ -155,7 +123,7 @@ func (s *Socks5Server) ConnectAndAuth() (*Socks5Conn, error) {
 			return nil, errtrace.Wrap(err)
 		}
 
-		msg, err := socks5.Read_AuthUserPassReply(conn.Reader)
+		msg, err := socks5.Read_AuthUserPassReply(reader)
 		if err != nil {
 			return nil, errtrace.Wrap(err)
 		}
@@ -165,5 +133,5 @@ func (s *Socks5Server) ConnectAndAuth() (*Socks5Conn, error) {
 		}
 	}
 
-	return &conn, nil
+	return netConn, nil
 }

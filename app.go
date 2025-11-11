@@ -22,16 +22,16 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 
-	ListenerServerManager.AddServers([]proxyserver.Server{
-		proxyserver.NewSshProxyServer("localhost", 2222, &common.ProxyAuth{
+	ListenerServerManager.AddServers([]*proxyserver.Server{
+		proxyserver.NewServer("localhost", 2222, &common.ProxyAuth{
 			Username: "ubuntu",
 			Password: "ubuntu",
 		}),
-		proxyserver.NewHttpProxyServer("127.0.0.1", 9001, &common.ProxyAuth{
+		proxyserver.NewServer("127.0.0.1", 9001, &common.ProxyAuth{
 			Username: "khanh",
 			Password: "khanh",
 		}),
-		proxyserver.NewSocks5ProxyServer("::1", 9002, &common.ProxyAuth{
+		proxyserver.NewServer("::1", 9002, &common.ProxyAuth{
 			Username: "khanh",
 			Password: "khanh",
 		}),
@@ -39,6 +39,17 @@ func (a *App) startup(ctx context.Context) {
 
 	for _, s := range ListenerServerManager.Servers {
 		fmt.Println(s)
+		switch s.Server.Port {
+		case 2222:
+			s.AddTags("ssh")
+			s.Server.Protocols[proxyserver.PROTO_Ssh] = true
+		case 9001:
+			s.AddTags("socks5")
+			s.Server.Protocols[proxyserver.PROTO_Socks5] = true
+		case 9002:
+			s.AddTags("http")
+			s.Server.Protocols[proxyserver.PROTO_Http] = true
+		}
 	}
 
 	ListenerServerManager.AddListeners([]*LocalListener{

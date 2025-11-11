@@ -19,7 +19,7 @@ type ManagedLocalListener struct {
 }
 
 type ManagedProxyServer struct {
-	Server proxyserver.Server
+	Server *proxyserver.Server
 
 	Tags map[string]bool
 }
@@ -38,7 +38,7 @@ type ServerFilter struct {
 }
 
 var DirectProxy = &ManagedProxyServer{
-	proxyserver.NewDirectProxyServer(),
+	proxyserver.NewDirectServer(),
 	map[string]bool{},
 }
 
@@ -60,13 +60,12 @@ func (s *ManagedProxyServer) AddTags(tags ...string) {
 	}
 }
 
-func (m *listenerServerManager) AddServers(servers []proxyserver.Server) {
+func (m *listenerServerManager) AddServers(servers []*proxyserver.Server) {
 	for _, s := range servers {
 		managedServer := &ManagedProxyServer{
 			s,
 			map[string]bool{},
 		}
-		managedServer.AddTags(s.Type())
 
 		m.Servers[s.String()] = managedServer
 	}
