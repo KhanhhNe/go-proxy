@@ -120,6 +120,10 @@ func (m *listenerServerManager) AddListeners(listeners []*LocalListener) {
 			false,
 		}
 	}
+
+	if m.IsServing {
+		m.serveInactiveListeners()
+	}
 }
 
 func (m *listenerServerManager) serveInactiveListeners() {
