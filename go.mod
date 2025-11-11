@@ -1,6 +1,6 @@
 module go-proxy
 
-go 1.24.0
+go 1.25.3
 
 require (
 	braces.dev/errtrace v0.4.0
