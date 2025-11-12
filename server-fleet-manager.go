@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"go-proxy/proxyserver"
+	"go-proxy/threadpool"
 	"iter"
 	"maps"
 	"sync"
@@ -66,6 +67,9 @@ func (m *listenerServerManager) AddServers(servers []*proxyserver.Server) {
 			s,
 			map[string]bool{},
 		}
+		threadpool.ServerPrecheckPool.AddTask(func() {
+			managedServer.Server.Protocols = s.CheckProtocols()
+		})
 
 		m.Servers[s.String()] = managedServer
 	}

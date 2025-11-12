@@ -42,6 +42,10 @@ func (s *Server) connectSocks5(target string) (net.Conn, error) {
 	}
 
 	conn, err := s.connectAndAuthSocks5()
+	if err != nil {
+		return nil, errtrace.Wrap(err)
+	}
+
 	reader := bufio.NewReader(conn)
 	writer := bufio.NewWriter(conn)
 
@@ -51,10 +55,6 @@ func (s *Server) connectSocks5(target string) (net.Conn, error) {
 			conn.Close()
 		}
 	}()
-
-	if err != nil {
-		return nil, errtrace.Wrap(err)
-	}
 
 	err = socks5.Write_Command(writer, socks5.MSG_Command{
 		Version:  socks5.VER_SOCKS5,

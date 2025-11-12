@@ -9,6 +9,10 @@ import (
 	"braces.dev/errtrace"
 )
 
+const (
+	IP_CHECK_HOST = "api.ipify.org"
+)
+
 func RunWithTimeout[T any](f func() *T, deadline time.Time) (*T, error) {
 	ctx, stop := context.WithDeadline(context.Background(), deadline)
 	start := time.Now()

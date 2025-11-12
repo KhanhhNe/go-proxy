@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"go-proxy/common"
 	"go-proxy/proxyserver"
+	"sync"
+	"time"
 )
 
 // App struct
@@ -21,36 +23,6 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-
-	ListenerServerManager.AddServers([]*proxyserver.Server{
-		proxyserver.NewServer("localhost", 2222, &common.ProxyAuth{
-			Username: "ubuntu",
-			Password: "ubuntu",
-		}),
-		proxyserver.NewServer("127.0.0.1", 9001, &common.ProxyAuth{
-			Username: "khanh",
-			Password: "khanh",
-		}),
-		proxyserver.NewServer("::1", 9002, &common.ProxyAuth{
-			Username: "khanh",
-			Password: "khanh",
-		}),
-	})
-
-	for _, s := range ListenerServerManager.Servers {
-		switch s.Server.Port {
-		case 2222:
-			s.AddTags("ssh")
-			s.Server.Protocols[proxyserver.PROTO_Ssh] = true
-		case 9001:
-			s.AddTags("socks5")
-			s.Server.Protocols[proxyserver.PROTO_Socks5] = true
-		case 9002:
-			s.AddTags("http")
-			s.Server.Protocols[proxyserver.PROTO_Http] = true
-		}
-		fmt.Println(s)
-	}
 
 	ListenerServerManager.AddListeners([]*LocalListener{
 		NewLocalListener(8000, &common.ProxyAuth{
@@ -76,7 +48,32 @@ func (a *App) startup(ctx context.Context) {
 		}, ServerFilter{IgnoreAll: true}),
 	})
 
-	ListenerServerManager.Serve()
+	var wg sync.WaitGroup
+	wg.Go(func() {
+		ListenerServerManager.Serve()
+	})
+	<-time.After(time.Second)
+
+	ListenerServerManager.AddServers([]*proxyserver.Server{
+		proxyserver.NewServer("localhost", 2222, &common.ProxyAuth{
+			Username: "ubuntu",
+			Password: "ubuntu",
+		}),
+		proxyserver.NewServer("127.0.0.1", 9001, &common.ProxyAuth{
+			Username: "khanh",
+			Password: "khanh",
+		}),
+		proxyserver.NewServer("::1", 9002, &common.ProxyAuth{
+			Username: "khanh",
+			Password: "khanh",
+		}),
+	})
+
+	for _, s := range ListenerServerManager.Servers {
+		fmt.Println(s)
+	}
+
+	wg.Wait()
 }
 
 // Greet returns a greeting for the given name
