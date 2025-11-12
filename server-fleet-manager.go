@@ -61,6 +61,17 @@ func (s *ManagedProxyServer) AddTags(tags ...string) {
 	}
 }
 
+func (s *ManagedProxyServer) HasAllTags(tags []string) bool {
+	for _, t := range tags {
+		hasTag, ok := s.Tags[t]
+		if !ok || !hasTag {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (m *listenerServerManager) AddServers(servers []*proxyserver.Server) {
 	for _, s := range servers {
 		managedServer := &ManagedProxyServer{
@@ -99,18 +110,8 @@ func (m *listenerServerManager) GetServer(filter ServerFilter) (*ManagedProxySer
 			break
 		}
 
-		if len(filter.Tags) > 0 {
-			found := false
-			for _, t := range filter.Tags {
-				v, ok := s.Tags[t]
-				if ok && v {
-					found = true
-					break
-				}
-			}
-			if !found {
-				continue
-			}
+		if !s.HasAllTags(filter.Tags) {
+			continue
 		}
 
 		return s, nil
