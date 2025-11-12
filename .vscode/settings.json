@@ -1,14 +1,20 @@
 {
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "always"
+    },
     "[typescript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true,
+        "editor.tabSize": 2,
     },
     "[typescriptreact]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true,
+        "editor.tabSize": 2,
     },
     "[javascript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true,
+        "editor.tabSize": 2,
     },
 }
