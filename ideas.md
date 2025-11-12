@@ -4,3 +4,9 @@
 - rotating by app
 - support all protocols?
 - proxy type conversion
+
+- use cases
+    - rotating proxy from SSH/proxy list
+    - 1-1 proxy mapping?
+    - free proxy
+    - proxy simplification by filter (country, delay, etc)

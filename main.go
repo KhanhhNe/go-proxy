@@ -22,9 +22,9 @@ var assets embed.FS
 var wailsContext *context.Context
 
 func main() {
-	fmt.Println("Hey skipped Wails app. Remember to turn it back on")
-	a2 := NewApp()
-	a2.startup(context.TODO())
+	// fmt.Println("Hey skipped Wails app. Remember to turn it back on")
+	// a2 := NewApp()
+	// a2.startup(context.TODO())
 
 	// Create an instance of the app structure
 	app := NewApp()
@@ -32,12 +32,12 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "go-proxy",
-		Width:  1024,
+		Width:  1224,
 		Height: 768,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
+		BackgroundColour: &options.RGBA{R: 255, G: 255, B: 255, A: 1},
 		OnStartup:        app.startup,
 		SingleInstanceLock: &options.SingleInstanceLock{
 			UniqueId:               "goproxy-db2d80a7-7116-4ed5-a61c-b641cf3d1b8c",
