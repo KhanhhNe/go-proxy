@@ -67,8 +67,14 @@ func (m *listenerServerManager) AddServers(servers []*proxyserver.Server) {
 			s,
 			map[string]bool{},
 		}
+
 		threadpool.ServerPrecheckPool.AddTask(func() {
 			managedServer.Server.Protocols = s.CheckProtocols()
+			for proto, supported := range managedServer.Server.Protocols {
+				if supported {
+					managedServer.AddTags(proto)
+				}
+			}
 		})
 
 		m.Servers[s.String()] = managedServer
