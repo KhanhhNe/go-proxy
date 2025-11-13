@@ -114,6 +114,7 @@ func (s *Server) Connect(target string) (net.Conn, error) {
 func (s *Server) CheckProtocols() map[string]bool {
 	var wg sync.WaitGroup
 	res := map[string]bool{}
+	var mu sync.Mutex
 
 	for proto := range s.Protocols {
 		if proto == PROTO_Direct {
@@ -126,7 +127,9 @@ func (s *Server) CheckProtocols() map[string]bool {
 
 		wg.Add(1)
 		go func(p string, c *Server) {
+			mu.Lock()
 			res[p] = c.CheckAlive()
+			mu.Unlock()
 			wg.Done()
 		}(proto, copy)
 	}

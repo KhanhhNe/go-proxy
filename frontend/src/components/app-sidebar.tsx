@@ -20,7 +20,7 @@ const items = [
   {
     page: PAGES.servers,
     icon: Globe,
-    name: "Danh sách proxy",
+    name: "Nguồn proxy",
   },
 ];
 
