@@ -35,7 +35,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           {items.map((item) => (
-            <SidebarMenuItem>
+            <SidebarMenuItem key={item.page}>
               <SidebarMenuButton asChild isActive={page === item.page}>
                 <a href="#" onClick={() => changePage(item.page)}>
                   <item.icon /> <span>{item.name}</span>

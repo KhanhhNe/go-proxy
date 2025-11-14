@@ -13,7 +13,8 @@ import (
 	"strconv"
 
 	"braces.dev/errtrace"
-	"github.com/cakturk/go-netstat/netstat"
+	psutilnet "github.com/shirou/gopsutil/v4/net"
+	"github.com/shirou/gopsutil/v4/process"
 )
 
 type LocalListener struct {
@@ -21,12 +22,31 @@ type LocalListener struct {
 	Listener net.Listener
 	Auth     *common.ProxyAuth
 	Filter   ServerFilter
+	Stat     ListenerStat
+}
+
+type ListenerStat struct {
+	Sent     uint64
+	Received uint64
 }
 
 type IncomingConnection struct {
-	net.Conn
+	*net.TCPConn
 
-	Process *netstat.Process
+	Listener *LocalListener
+	Process  *process.Process
+}
+
+func (c *IncomingConnection) Write(b []byte) (int, error) {
+	n, err := c.TCPConn.Write(b)
+	c.Listener.Stat.Sent += uint64(n)
+	return n, err
+}
+
+func (c *IncomingConnection) Read(b []byte) (int, error) {
+	n, err := c.TCPConn.Read(b)
+	c.Listener.Stat.Received += uint64(n)
+	return n, err
 }
 
 type DoneCallback func(err error)
@@ -37,6 +57,7 @@ func NewLocalListener(port int, auth *common.ProxyAuth, filter ServerFilter) *Lo
 		nil,
 		auth,
 		filter,
+		ListenerStat{},
 	}
 }
 
@@ -45,32 +66,34 @@ func (l *LocalListener) Printlnf(f string, a ...any) {
 	fmt.Printf(f, a...)
 }
 
-func FindTcpProcess(addr string) (*netstat.Process, error) {
-	host, port, err := net.SplitHostPort(addr)
+func FindTcpProcess(addr string) (*process.Process, error) {
+	_, port, err := net.SplitHostPort(addr)
 	if err != nil {
 		return nil, errtrace.Wrap(err)
 	}
 
-	ip := net.ParseIP(host)
-	accept := func(e *netstat.SockTabEntry) bool {
-		return strconv.Itoa(int(e.LocalAddr.Port)) == port
-	}
-
-	var procList []netstat.SockTabEntry
-	if ip.To4() != nil {
-		procList, err = netstat.TCPSocks(accept)
-	} else {
-		procList, err = netstat.TCP6Socks(accept)
-	}
+	conns, err := psutilnet.Connections("tcp")
 	if err != nil {
 		return nil, errtrace.Wrap(err)
 	}
 
-	if len(procList) > 0 {
-		return procList[0].Process, nil
+	portInt, err := strconv.Atoi(port)
+	if err != nil {
+		return nil, errtrace.Wrap(err)
 	}
 
-	return nil, nil
+	var pid int32
+	for _, conn := range conns {
+		if int(conn.Laddr.Port) == portInt {
+			pid = conn.Pid
+		}
+	}
+	if pid == 0 {
+		return nil, nil
+	}
+
+	proc, err := process.NewProcess(pid)
+	return proc, errtrace.Wrap(err)
 }
 
 func (l *LocalListener) Serve(ctx context.Context, cb DoneCallback) {
@@ -87,10 +110,11 @@ func (l *LocalListener) Serve(ctx context.Context, cb DoneCallback) {
 	running := true
 
 	for running {
-		netConn, err := l.Listener.Accept()
+		c, err := l.Listener.Accept()
 		if err != nil {
 			cb(errtrace.Wrap(err))
 		}
+		netConn := c.(*net.TCPConn)
 
 		go func() {
 			defer netConn.Close()
@@ -104,16 +128,21 @@ func (l *LocalListener) Serve(ctx context.Context, cb DoneCallback) {
 					l.Printlnf("Error: %+v", err)
 				}
 			} else {
-				l.Printlnf("Found process: %d %s for %s", proc.Pid, proc.Name, addr)
+				name, err := proc.Name()
+				if err != nil {
+					l.Printlnf("Error: %+v", err)
+				}
+				l.Printlnf("Found process: %d %s for %s", proc.Pid, name, addr)
 			}
 
 			conn := &IncomingConnection{
-				Conn:    netConn,
-				Process: proc,
+				netConn,
+				l,
+				proc,
 			}
 
-			reader := bufio.NewReader(netConn)
-			writer := bufio.NewWriter(netConn)
+			reader := bufio.NewReader(conn)
+			writer := bufio.NewWriter(conn)
 
 			version, err := reader.Peek(1)
 			if err != nil {

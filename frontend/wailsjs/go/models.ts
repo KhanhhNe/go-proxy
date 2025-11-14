@@ -19,6 +19,20 @@ export namespace common {
 
 export namespace main {
 	
+	export class ListenerStat {
+	    Sent: number;
+	    Received: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new ListenerStat(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Sent = source["Sent"];
+	        this.Received = source["Received"];
+	    }
+	}
 	export class ServerFilter {
 	    Tags: string[];
 	    IgnoreAll: boolean;
@@ -38,6 +52,7 @@ export namespace main {
 	    Listener: any;
 	    Auth?: common.ProxyAuth;
 	    Filter: ServerFilter;
+	    Stat: ListenerStat;
 	
 	    static createFrom(source: any = {}) {
 	        return new LocalListener(source);
@@ -49,6 +64,7 @@ export namespace main {
 	        this.Listener = source["Listener"];
 	        this.Auth = this.convertValues(source["Auth"], common.ProxyAuth);
 	        this.Filter = this.convertValues(source["Filter"], ServerFilter);
+	        this.Stat = this.convertValues(source["Stat"], ListenerStat);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { DataTable, useTable } from "@/components/ui/table";
+import { formatByte } from "@/lib/utils";
 import {
   ColumnDef,
   getCoreRowModel,
@@ -34,20 +35,34 @@ const columns: ColumnDef<main.ManagedLocalListener>[] = [
     cell: ({ row }) => (
       <div className="flex gap-1">
         {(row.original.Listener?.Filter.Tags ?? []).map((tag) => (
-          <Badge>{tag}</Badge>
+          <Badge key={tag}>{tag}</Badge>
         ))}
       </div>
+    ),
+  },
+  {
+    id: "received",
+    header: "Tải xuống",
+    cell: ({ row }) => (
+      <span>{formatByte(row.original.Listener?.Stat.Received || 0)}</span>
+    ),
+  },
+  {
+    id: "sent",
+    header: "Tải lên",
+    cell: ({ row }) => (
+      <span>{formatByte(row.original.Listener?.Stat.Sent || 0)}</span>
     ),
   },
 ];
 
 export function PageIndex() {
   const [manager, setManager] = useState<main.listenerServerManager | null>(
-    null
+    null,
   );
   const listeners = useMemo(
     () => Object.values(manager?.Listeners || {}),
-    [manager]
+    [manager],
   );
 
   const [rowSelection, setRowSelection] = useState({});
@@ -64,12 +79,18 @@ export function PageIndex() {
   });
 
   useEffect(() => {
-    GetManager().then(setManager);
+    function fetchManager() {
+      GetManager().then(setManager);
+
+      setTimeout(fetchManager, 5000);
+    }
+
+    fetchManager();
   }, []);
 
   return (
     <div>
-      <DataTable title="Proxy dùng được" table={table} />
+      <DataTable title="Danh sách proxy" table={table} />
     </div>
   );
 }
