@@ -4,6 +4,7 @@ go 1.25.3
 
 require (
 	braces.dev/errtrace v0.4.0
+	github.com/oschwald/maxminddb-golang/v2 v2.1.0
 	github.com/shirou/gopsutil/v4 v4.25.10
 	github.com/wailsapp/wails/v2 v2.10.2
 	golang.org/x/crypto v0.43.0

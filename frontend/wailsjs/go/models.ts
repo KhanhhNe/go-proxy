@@ -197,6 +197,7 @@ export namespace proxyserver {
 	    Port: number;
 	    Auth?: common.ProxyAuth;
 	    Timeout: number;
+	    PublicIp: string;
 	    Protocols: Record<string, boolean>;
 	
 	    static createFrom(source: any = {}) {
@@ -209,6 +210,7 @@ export namespace proxyserver {
 	        this.Port = source["Port"];
 	        this.Auth = this.convertValues(source["Auth"], common.ProxyAuth);
 	        this.Timeout = source["Timeout"];
+	        this.PublicIp = source["PublicIp"];
 	        this.Protocols = source["Protocols"];
 	    }
 	

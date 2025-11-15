@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"go-proxy/common"
+	"io"
 	"net"
 	"net/http"
 	"strings"
@@ -14,10 +15,11 @@ import (
 )
 
 type Server struct {
-	Host    string
-	Port    int
-	Auth    *common.ProxyAuth
-	Timeout time.Duration
+	Host     string
+	Port     int
+	Auth     *common.ProxyAuth
+	Timeout  time.Duration
+	PublicIp string
 
 	Protocols map[string]bool
 
@@ -52,6 +54,7 @@ func NewServer(host string, port int, auth *common.ProxyAuth) *Server {
 		port,
 		auth,
 		30 * time.Second,
+		"",
 		map[string]bool{
 			PROTO_Ssh:    false,
 			PROTO_Socks5: false,
@@ -69,22 +72,7 @@ func NewServer(host string, port int, auth *common.ProxyAuth) *Server {
 }
 
 func (s *Server) String() string {
-	protos := ""
-	if s.Protocols[PROTO_Http] {
-		protos += ",http"
-	}
-	if s.Protocols[PROTO_Socks5] {
-		protos += ",socks5"
-	}
-	if s.Protocols[PROTO_Ssh] {
-		protos += ",ssh"
-	}
-	protos = strings.TrimLeft(protos, ",")
-	if protos == "" {
-		protos = "no_proto"
-	}
-
-	return fmt.Sprintf("%s %s:%d", protos, s.Host, s.Port)
+	return fmt.Sprintf("%s:%d", s.Host, s.Port)
 }
 
 func (s *Server) Printlnf(f string, a ...any) {
@@ -127,8 +115,12 @@ func (s *Server) CheckProtocols() map[string]bool {
 
 		wg.Add(1)
 		go func(p string, c *Server) {
+			alive := c.CheckAlive()
 			mu.Lock()
-			res[p] = c.CheckAlive()
+			res[p] = alive
+			if alive {
+				s.PublicIp = copy.PublicIp
+			}
 			mu.Unlock()
 			wg.Done()
 		}(proto, copy)
@@ -174,12 +166,19 @@ func (s *Server) CheckAlive() bool {
 		return false
 	}
 
-	res, err := bufio.NewReader(conn).ReadString('\n')
+	res, err := http.ReadResponse(bufio.NewReader(conn), req)
 	if err != nil {
 		return false
 	}
 
-	return strings.Contains(res, "HTTP")
+	body, err := io.ReadAll(res.Body)
+	if err != nil && err != io.EOF {
+		return false
+	}
+
+	s.PublicIp = string(body)
+
+	return true
 }
 
 func (s *Server) getHandlers() (PrepareFunc, IsPreparedFunc, ConnectFunc) {

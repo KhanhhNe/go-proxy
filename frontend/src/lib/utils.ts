@@ -18,3 +18,24 @@ export function formatByte(n: number) {
 
   return fixed + " " + BYTE_UNITS[i];
 }
+
+export function pick<
+  Inp extends object,
+  Keys extends keyof Inp,
+  Res extends Pick<Inp, Keys>,
+>(...keys: Keys[]): (obj: Inp) => Res {
+  return (obj: Inp) => {
+    const res = {} as Res;
+    for (const k of keys) {
+      if (k in obj) {
+        // @ts-expect-error Same keys used here
+        res[k] = obj[k];
+      }
+    }
+    return res;
+  };
+}
+
+export function equalJson(a: any, b: any) {
+  return JSON.stringify(a) === JSON.stringify(b);
+}

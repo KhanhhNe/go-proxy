@@ -1,5 +1,6 @@
-import { create } from "zustand";
 import type {} from "@redux-devtools/extension"; // Required for zustand IDE typing
+import { main } from "@wailsjs/go/models";
+import { createWithEqualityFn as create } from "zustand/traditional";
 
 export const PAGES = {
   index: "index",
@@ -13,4 +14,12 @@ export const usePageStore = create<{
 }>((set) => ({
   page: PAGES.index,
   setPage: (page: PageName) => set({ page }),
+}));
+
+export const useManagerStore = create<{
+  manager: main.listenerServerManager | null;
+  setManager: (m: main.listenerServerManager) => void;
+}>((set) => ({
+  manager: null,
+  setManager: (manager: main.listenerServerManager) => set({ manager }),
 }));

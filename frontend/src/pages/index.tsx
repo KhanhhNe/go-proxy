@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { DataTable, useTable } from "@/components/ui/table";
-import { formatByte } from "@/lib/utils";
+import { equalJson, formatByte } from "@/lib/utils";
+import { useManagerStore } from "@/state";
 import {
   ColumnDef,
   getCoreRowModel,
@@ -57,9 +58,9 @@ const columns: ColumnDef<main.ManagedLocalListener>[] = [
 ];
 
 export function PageIndex() {
-  const [manager, setManager] = useState<main.listenerServerManager | null>(
-    null,
-  );
+  const manager = useManagerStore((state) => state.manager, equalJson);
+  const setManager = useManagerStore((state) => state.setManager);
+
   const listeners = useMemo(
     () => Object.values(manager?.Listeners || {}),
     [manager],
@@ -91,6 +92,18 @@ export function PageIndex() {
   return (
     <div>
       <DataTable title="Danh sách proxy" table={table} />
+
+      <pre>
+        {JSON.stringify(
+          Object.values(manager?.Servers || {}).map((s) => [
+            s.Server?.Port,
+            s.Server?.PublicIp,
+            s.Tags,
+          ]),
+          null,
+          2,
+        )}
+      </pre>
     </div>
   );
 }

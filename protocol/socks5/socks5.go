@@ -317,7 +317,7 @@ func Write_CommandReply(w *bufio.Writer, m MSG_CommandReply) error {
 	case ADDR_IPv4, ADDR_IPv6:
 		addr = net.ParseIP(m.BindAddr)
 		if m.AddrType == ADDR_IPv4 {
-			addr = addr[12:]
+			addr = addr.To4()
 		}
 	case ADDR_DomainName:
 		addr = net.IP(m.BindAddr)

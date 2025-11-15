@@ -3,15 +3,20 @@ package common
 import (
 	"context"
 	"encoding/base64"
+	"go-proxy/binary"
+	"net/netip"
 	"strings"
 	"time"
 
 	"braces.dev/errtrace"
+	"github.com/oschwald/maxminddb-golang/v2"
 )
 
 const (
 	IP_CHECK_HOST = "api.ipify.org"
 )
+
+var ip2countryDb *maxminddb.Reader
 
 func RunWithTimeout[T any](f func() *T, deadline time.Time) (*T, error) {
 	ctx, stop := context.WithDeadline(context.Background(), deadline)
@@ -51,4 +56,39 @@ func (a *ProxyAuth) VerifyBasic(basic string) bool {
 	basic = strings.TrimLeft(basic, " ")
 
 	return basic == a.Base64()
+}
+
+func GetIpCountry(ip netip.Addr) (string, error) {
+	if ip2countryDb == nil {
+		file, err := binary.BinaryFS.ReadFile("files/ip-to-country.mmdb")
+		if err != nil {
+			return "", errtrace.Wrap(err)
+		}
+
+		ip2countryDb, err = maxminddb.OpenBytes(file)
+		if err != nil {
+			return "", errtrace.Wrap(err)
+		}
+	}
+
+	var res struct {
+		CountryCode string `maxminddb:"country_code"`
+	}
+	lookup := ip2countryDb.Lookup(ip)
+
+	if !lookup.Found() {
+		return "", errtrace.Errorf("Country code not found")
+	}
+
+	err := lookup.Decode(&res)
+	if err != nil {
+		return "", errtrace.Wrap(err)
+	}
+
+	code := string(res.CountryCode)
+	if code == "" {
+		return "", errtrace.Errorf("Empty country code found")
+	}
+
+	return code, nil
 }

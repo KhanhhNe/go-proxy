@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"go-proxy/common"
 	"go-proxy/proxyserver"
 	"go-proxy/threadpool"
 	"iter"
 	"maps"
+	"net/netip"
 	"sync"
 
 	"braces.dev/errtrace"
@@ -79,14 +81,31 @@ func (m *listenerServerManager) AddServers(servers []*proxyserver.Server) {
 			map[string]bool{},
 		}
 
-		threadpool.ServerPrecheckPool.AddTask(func() {
-			managedServer.Server.Protocols = s.CheckProtocols()
-			for proto, supported := range managedServer.Server.Protocols {
-				if supported {
-					managedServer.AddTags(proto)
+		threadpool.ServerPrecheckPool.AddTask(func(s *ManagedProxyServer) func() {
+			return func() {
+				s.Server.Protocols = s.Server.CheckProtocols()
+				for proto, supported := range managedServer.Server.Protocols {
+					if supported {
+						managedServer.AddTags(proto)
+					}
+				}
+
+				if s.Server.PublicIp != "" {
+					ip, err := netip.ParseAddr(s.Server.PublicIp)
+					if err != nil {
+						return
+					}
+
+					countryCode, err := common.GetIpCountry(ip)
+					if err != nil {
+						s.Server.Printlnf("Error getting IP country: IP %s, error: %+v", s.Server.PublicIp, err)
+						return
+					}
+
+					s.AddTags(countryCode)
 				}
 			}
-		})
+		}(managedServer))
 
 		m.Servers[s.String()] = managedServer
 	}
