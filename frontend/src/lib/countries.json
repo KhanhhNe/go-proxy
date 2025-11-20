@@ -1,0 +1,1217 @@
+[
+  {
+    "code": "AF",
+    "iso_name": "Afghanistan",
+    "vietnamese_name": "Afghanistan"
+  },
+  {
+    "code": "AX",
+    "iso_name": "Åland Islands",
+    "vietnamese_name": "Quần đảo Åland"
+  },
+  {
+    "code": "AL",
+    "iso_name": "Albania",
+    "vietnamese_name": "Albania"
+  },
+  {
+    "code": "DZ",
+    "iso_name": "Algeria",
+    "vietnamese_name": "Algérie"
+  },
+  {
+    "code": "AS",
+    "iso_name": "American Samoa",
+    "vietnamese_name": "Samoa thuộc Mỹ"
+  },
+  {
+    "code": "AD",
+    "iso_name": "AndorrA",
+    "vietnamese_name": "Andorra"
+  },
+  {
+    "code": "AO",
+    "iso_name": "Angola",
+    "vietnamese_name": "Angola"
+  },
+  {
+    "code": "AI",
+    "iso_name": "Anguilla",
+    "vietnamese_name": "Anguilla"
+  },
+  {
+    "code": "AQ",
+    "iso_name": "Antarctica",
+    "vietnamese_name": "Châu Nam Cực"
+  },
+  {
+    "code": "AG",
+    "iso_name": "Antigua and Barbuda",
+    "vietnamese_name": "Antigua và Barbuda"
+  },
+  {
+    "code": "AR",
+    "iso_name": "Argentina",
+    "vietnamese_name": "Argentina"
+  },
+  {
+    "code": "AM",
+    "iso_name": "Armenia",
+    "vietnamese_name": "Armenia"
+  },
+  {
+    "code": "AW",
+    "iso_name": "Aruba",
+    "vietnamese_name": "Aruba"
+  },
+  {
+    "code": "AU",
+    "iso_name": "Australia",
+    "vietnamese_name": "Úc"
+  },
+  {
+    "code": "AT",
+    "iso_name": "Austria",
+    "vietnamese_name": "Áo"
+  },
+  {
+    "code": "AZ",
+    "iso_name": "Azerbaijan",
+    "vietnamese_name": "Azerbaijan"
+  },
+  {
+    "code": "BS",
+    "iso_name": "Bahamas",
+    "vietnamese_name": "Bahamas"
+  },
+  {
+    "code": "BH",
+    "iso_name": "Bahrain",
+    "vietnamese_name": "Bahrain"
+  },
+  {
+    "code": "BD",
+    "iso_name": "Bangladesh",
+    "vietnamese_name": "Bangladesh"
+  },
+  {
+    "code": "BB",
+    "iso_name": "Barbados",
+    "vietnamese_name": "Barbados"
+  },
+  {
+    "code": "BY",
+    "iso_name": "Belarus",
+    "vietnamese_name": "Belarus"
+  },
+  {
+    "code": "BE",
+    "iso_name": "Belgium",
+    "vietnamese_name": "Bỉ"
+  },
+  {
+    "code": "BZ",
+    "iso_name": "Belize",
+    "vietnamese_name": "Belize"
+  },
+  {
+    "code": "BJ",
+    "iso_name": "Benin",
+    "vietnamese_name": "Benin"
+  },
+  {
+    "code": "BM",
+    "iso_name": "Bermuda",
+    "vietnamese_name": "Bermuda"
+  },
+  {
+    "code": "BT",
+    "iso_name": "Bhutan",
+    "vietnamese_name": "Bhutan"
+  },
+  {
+    "code": "BO",
+    "iso_name": "Bolivia",
+    "vietnamese_name": "Bolivia"
+  },
+  {
+    "code": "BA",
+    "iso_name": "Bosnia and Herzegovina",
+    "vietnamese_name": "Bosnia và Herzegovina"
+  },
+  {
+    "code": "BW",
+    "iso_name": "Botswana",
+    "vietnamese_name": "Botswana"
+  },
+  {
+    "code": "BV",
+    "iso_name": "Bouvet Island",
+    "vietnamese_name": "Đảo Bouvet"
+  },
+  {
+    "code": "BR",
+    "iso_name": "Brazil",
+    "vietnamese_name": "Brasil"
+  },
+  {
+    "code": "IO",
+    "iso_name": "British Indian Ocean Territory",
+    "vietnamese_name": "Lãnh thổ Ấn Độ Dương thuộc Anh"
+  },
+  {
+    "code": "BN",
+    "iso_name": "Brunei Darussalam",
+    "vietnamese_name": "Brunei"
+  },
+  {
+    "code": "BG",
+    "iso_name": "Bulgaria",
+    "vietnamese_name": "Bulgaria"
+  },
+  {
+    "code": "BF",
+    "iso_name": "Burkina Faso",
+    "vietnamese_name": "Burkina Faso"
+  },
+  {
+    "code": "BI",
+    "iso_name": "Burundi",
+    "vietnamese_name": "Burundi"
+  },
+  {
+    "code": "KH",
+    "iso_name": "Cambodia",
+    "vietnamese_name": "Campuchia"
+  },
+  {
+    "code": "CM",
+    "iso_name": "Cameroon",
+    "vietnamese_name": "Cameroon"
+  },
+  {
+    "code": "CA",
+    "iso_name": "Canada",
+    "vietnamese_name": "Canada"
+  },
+  {
+    "code": "CV",
+    "iso_name": "Cape Verde",
+    "vietnamese_name": "Cape Verde"
+  },
+  {
+    "code": "KY",
+    "iso_name": "Cayman Islands",
+    "vietnamese_name": "Quần đảo Cayman"
+  },
+  {
+    "code": "CF",
+    "iso_name": "Central African Republic",
+    "vietnamese_name": "Cộng hòa Trung Phi"
+  },
+  {
+    "code": "TD",
+    "iso_name": "Chad",
+    "vietnamese_name": "Chad"
+  },
+  {
+    "code": "CL",
+    "iso_name": "Chile",
+    "vietnamese_name": "Chile"
+  },
+  {
+    "code": "CN",
+    "iso_name": "China",
+    "vietnamese_name": "Trung Quốc"
+  },
+  {
+    "code": "CX",
+    "iso_name": "Christmas Island",
+    "vietnamese_name": "Đảo Christmas"
+  },
+  {
+    "code": "CC",
+    "iso_name": "Cocos (Keeling) Islands",
+    "vietnamese_name": "Quần đảo Cocos (Keeling)"
+  },
+  {
+    "code": "CO",
+    "iso_name": "Colombia",
+    "vietnamese_name": "Colombia"
+  },
+  {
+    "code": "KM",
+    "iso_name": "Comoros",
+    "vietnamese_name": "Comoros"
+  },
+  {
+    "code": "CG",
+    "iso_name": "Congo",
+    "vietnamese_name": "Congo"
+  },
+  {
+    "code": "CD",
+    "iso_name": "Congo, The Democratic Republic of the",
+    "vietnamese_name": "Cộng hòa Dân chủ Congo"
+  },
+  {
+    "code": "CK",
+    "iso_name": "Cook Islands",
+    "vietnamese_name": "Đảo Cook"
+  },
+  {
+    "code": "CR",
+    "iso_name": "Costa Rica",
+    "vietnamese_name": "Costa Rica"
+  },
+  {
+    "code": "CI",
+    "iso_name": "Cote D'Ivoire",
+    "vietnamese_name": "Bờ Biển Ngà"
+  },
+  {
+    "code": "HR",
+    "iso_name": "Croatia",
+    "vietnamese_name": "Croatia"
+  },
+  {
+    "code": "CU",
+    "iso_name": "Cuba",
+    "vietnamese_name": "Cuba"
+  },
+  {
+    "code": "CY",
+    "iso_name": "Cyprus",
+    "vietnamese_name": "Síp"
+  },
+  {
+    "code": "CZ",
+    "iso_name": "Czech Republic",
+    "vietnamese_name": "Cộng hòa Séc"
+  },
+  {
+    "code": "DK",
+    "iso_name": "Denmark",
+    "vietnamese_name": "Đan Mạch"
+  },
+  {
+    "code": "DJ",
+    "iso_name": "Djibouti",
+    "vietnamese_name": "Djibouti"
+  },
+  {
+    "code": "DM",
+    "iso_name": "Dominica",
+    "vietnamese_name": "Dominica"
+  },
+  {
+    "code": "DO",
+    "iso_name": "Dominican Republic",
+    "vietnamese_name": "Cộng hòa Dominica"
+  },
+  {
+    "code": "EC",
+    "iso_name": "Ecuador",
+    "vietnamese_name": "Ecuador"
+  },
+  {
+    "code": "EG",
+    "iso_name": "Egypt",
+    "vietnamese_name": "Ai Cập"
+  },
+  {
+    "code": "SV",
+    "iso_name": "El Salvador",
+    "vietnamese_name": "El Salvador"
+  },
+  {
+    "code": "GQ",
+    "iso_name": "Equatorial Guinea",
+    "vietnamese_name": "Guinea Xích Đạo"
+  },
+  {
+    "code": "ER",
+    "iso_name": "Eritrea",
+    "vietnamese_name": "Eritrea"
+  },
+  {
+    "code": "EE",
+    "iso_name": "Estonia",
+    "vietnamese_name": "Estonia"
+  },
+  {
+    "code": "ET",
+    "iso_name": "Ethiopia",
+    "vietnamese_name": "Ethiopia"
+  },
+  {
+    "code": "FK",
+    "iso_name": "Falkland Islands (Malvinas)",
+    "vietnamese_name": "Quần đảo Falkland (Malvinas)"
+  },
+  {
+    "code": "FO",
+    "iso_name": "Faroe Islands",
+    "vietnamese_name": "Quần đảo Faroe"
+  },
+  {
+    "code": "FJ",
+    "iso_name": "Fiji",
+    "vietnamese_name": "Fiji"
+  },
+  {
+    "code": "FI",
+    "iso_name": "Finland",
+    "vietnamese_name": "Phần Lan"
+  },
+  {
+    "code": "FR",
+    "iso_name": "France",
+    "vietnamese_name": "Pháp"
+  },
+  {
+    "code": "GF",
+    "iso_name": "French Guiana",
+    "vietnamese_name": "Guiana thuộc Pháp"
+  },
+  {
+    "code": "PF",
+    "iso_name": "French Polynesia",
+    "vietnamese_name": "Polynesia thuộc Pháp"
+  },
+  {
+    "code": "TF",
+    "iso_name": "French Southern Territories",
+    "vietnamese_name": "Lãnh thổ phía Nam của Pháp"
+  },
+  {
+    "code": "GA",
+    "iso_name": "Gabon",
+    "vietnamese_name": "Gabon"
+  },
+  {
+    "code": "GM",
+    "iso_name": "Gambia",
+    "vietnamese_name": "Gambia"
+  },
+  {
+    "code": "GE",
+    "iso_name": "Georgia",
+    "vietnamese_name": "Georgia"
+  },
+  {
+    "code": "DE",
+    "iso_name": "Germany",
+    "vietnamese_name": "Đức"
+  },
+  {
+    "code": "GH",
+    "iso_name": "Ghana",
+    "vietnamese_name": "Ghana"
+  },
+  {
+    "code": "GI",
+    "iso_name": "Gibraltar",
+    "vietnamese_name": "Gibraltar"
+  },
+  {
+    "code": "GR",
+    "iso_name": "Greece",
+    "vietnamese_name": "Hy Lạp"
+  },
+  {
+    "code": "GL",
+    "iso_name": "Greenland",
+    "vietnamese_name": "Greenland"
+  },
+  {
+    "code": "GD",
+    "iso_name": "Grenada",
+    "vietnamese_name": "Grenada"
+  },
+  {
+    "code": "GP",
+    "iso_name": "Guadeloupe",
+    "vietnamese_name": "Guadeloupe"
+  },
+  {
+    "code": "GU",
+    "iso_name": "Guam",
+    "vietnamese_name": "Guam"
+  },
+  {
+    "code": "GT",
+    "iso_name": "Guatemala",
+    "vietnamese_name": "Guatemala"
+  },
+  {
+    "code": "GG",
+    "iso_name": "Guernsey",
+    "vietnamese_name": "Guernsey"
+  },
+  {
+    "code": "GN",
+    "iso_name": "Guinea",
+    "vietnamese_name": "Guinea"
+  },
+  {
+    "code": "GW",
+    "iso_name": "Guinea-Bissau",
+    "vietnamese_name": "Guinea-Bissau"
+  },
+  {
+    "code": "GY",
+    "iso_name": "Guyana",
+    "vietnamese_name": "Guyana"
+  },
+  {
+    "code": "HT",
+    "iso_name": "Haiti",
+    "vietnamese_name": "Haiti"
+  },
+  {
+    "code": "HM",
+    "iso_name": "Heard Island and Mcdonald Islands",
+    "vietnamese_name": "Heard và đảo McDonald"
+  },
+  {
+    "code": "VA",
+    "iso_name": "Holy See (Vatican City State)",
+    "vietnamese_name": "Vatican"
+  },
+  {
+    "code": "HN",
+    "iso_name": "Honduras",
+    "vietnamese_name": "Honduras"
+  },
+  {
+    "code": "HK",
+    "iso_name": "Hong Kong",
+    "vietnamese_name": "Hồng Kông"
+  },
+  {
+    "code": "HU",
+    "iso_name": "Hungary",
+    "vietnamese_name": "Hungary"
+  },
+  {
+    "code": "IS",
+    "iso_name": "Iceland",
+    "vietnamese_name": "Iceland"
+  },
+  {
+    "code": "IN",
+    "iso_name": "India",
+    "vietnamese_name": "Ấn Độ"
+  },
+  {
+    "code": "ID",
+    "iso_name": "Indonesia",
+    "vietnamese_name": "Indonesia"
+  },
+  {
+    "code": "IR",
+    "iso_name": "Iran, Islamic Republic Of",
+    "vietnamese_name": "Iran"
+  },
+  {
+    "code": "IQ",
+    "iso_name": "Iraq",
+    "vietnamese_name": "Iraq"
+  },
+  {
+    "code": "IE",
+    "iso_name": "Ireland",
+    "vietnamese_name": "Ireland"
+  },
+  {
+    "code": "IM",
+    "iso_name": "Isle of Man",
+    "vietnamese_name": "Đảo Man"
+  },
+  {
+    "code": "IL",
+    "iso_name": "Israel",
+    "vietnamese_name": "Israel"
+  },
+  {
+    "code": "IT",
+    "iso_name": "Italy",
+    "vietnamese_name": "Ý"
+  },
+  {
+    "code": "JM",
+    "iso_name": "Jamaica",
+    "vietnamese_name": "Jamaica"
+  },
+  {
+    "code": "JP",
+    "iso_name": "Japan",
+    "vietnamese_name": "Nhật Bản"
+  },
+  {
+    "code": "JE",
+    "iso_name": "Jersey",
+    "vietnamese_name": "Jersey"
+  },
+  {
+    "code": "JO",
+    "iso_name": "Jordan",
+    "vietnamese_name": "Jordan"
+  },
+  {
+    "code": "KZ",
+    "iso_name": "Kazakhstan",
+    "vietnamese_name": "Kazakhstan"
+  },
+  {
+    "code": "KE",
+    "iso_name": "Kenya",
+    "vietnamese_name": "Kenya"
+  },
+  {
+    "code": "KI",
+    "iso_name": "Kiribati",
+    "vietnamese_name": "Kiribati"
+  },
+  {
+    "code": "KP",
+    "iso_name": "Korea, Democratic People'S Republic of",
+    "vietnamese_name": "Bắc Triều Tiên"
+  },
+  {
+    "code": "KR",
+    "iso_name": "Korea, Republic of",
+    "vietnamese_name": "Hàn Quốc"
+  },
+  {
+    "code": "KW",
+    "iso_name": "Kuwait",
+    "vietnamese_name": "Kuwait"
+  },
+  {
+    "code": "KG",
+    "iso_name": "Kyrgyzstan",
+    "vietnamese_name": "Kyrgyzstan"
+  },
+  {
+    "code": "LA",
+    "iso_name": "Lao People'S Democratic Republic",
+    "vietnamese_name": "Lào"
+  },
+  {
+    "code": "LV",
+    "iso_name": "Latvia",
+    "vietnamese_name": "Latvia"
+  },
+  {
+    "code": "LB",
+    "iso_name": "Lebanon",
+    "vietnamese_name": "Lebanon"
+  },
+  {
+    "code": "LS",
+    "iso_name": "Lesotho",
+    "vietnamese_name": "Lesotho"
+  },
+  {
+    "code": "LR",
+    "iso_name": "Liberia",
+    "vietnamese_name": "Liberia"
+  },
+  {
+    "code": "LY",
+    "iso_name": "Libyan Arab Jamahiriya",
+    "vietnamese_name": "Libya"
+  },
+  {
+    "code": "LI",
+    "iso_name": "Liechtenstein",
+    "vietnamese_name": "Liechtenstein"
+  },
+  {
+    "code": "LT",
+    "iso_name": "Lithuania",
+    "vietnamese_name": "Lithuania"
+  },
+  {
+    "code": "LU",
+    "iso_name": "Luxembourg",
+    "vietnamese_name": "Luxembourg"
+  },
+  {
+    "code": "MO",
+    "iso_name": "Macao",
+    "vietnamese_name": "Ma Cao"
+  },
+  {
+    "code": "MK",
+    "iso_name": "Macedonia, The Former Yugoslav Republic of",
+    "vietnamese_name": "Bắc Macedonia"
+  },
+  {
+    "code": "MG",
+    "iso_name": "Madagascar",
+    "vietnamese_name": "Madagascar"
+  },
+  {
+    "code": "MW",
+    "iso_name": "Malawi",
+    "vietnamese_name": "Malawi"
+  },
+  {
+    "code": "MY",
+    "iso_name": "Malaysia",
+    "vietnamese_name": "Malaysia"
+  },
+  {
+    "code": "MV",
+    "iso_name": "Maldives",
+    "vietnamese_name": "Maldives"
+  },
+  {
+    "code": "ML",
+    "iso_name": "Mali",
+    "vietnamese_name": "Mali"
+  },
+  {
+    "code": "MT",
+    "iso_name": "Malta",
+    "vietnamese_name": "Malta"
+  },
+  {
+    "code": "MH",
+    "iso_name": "Marshall Islands",
+    "vietnamese_name": "Quần đảo Marshall"
+  },
+  {
+    "code": "MQ",
+    "iso_name": "Martinique",
+    "vietnamese_name": "Martinique"
+  },
+  {
+    "code": "MR",
+    "iso_name": "Mauritania",
+    "vietnamese_name": "Mauritania"
+  },
+  {
+    "code": "MU",
+    "iso_name": "Mauritius",
+    "vietnamese_name": "Mauritius"
+  },
+  {
+    "code": "YT",
+    "iso_name": "Mayotte",
+    "vietnamese_name": "Mayotte"
+  },
+  {
+    "code": "MX",
+    "iso_name": "Mexico",
+    "vietnamese_name": "Mexico"
+  },
+  {
+    "code": "FM",
+    "iso_name": "Micronesia, Federated States of",
+    "vietnamese_name": "Micronesia"
+  },
+  {
+    "code": "MD",
+    "iso_name": "Moldova, Republic of",
+    "vietnamese_name": "Moldova"
+  },
+  {
+    "code": "MC",
+    "iso_name": "Monaco",
+    "vietnamese_name": "Monaco"
+  },
+  {
+    "code": "MN",
+    "iso_name": "Mongolia",
+    "vietnamese_name": "Mông Cổ"
+  },
+  {
+    "code": "MS",
+    "iso_name": "Montserrat",
+    "vietnamese_name": "Montserrat"
+  },
+  {
+    "code": "MA",
+    "iso_name": "Morocco",
+    "vietnamese_name": "Ma Rốc"
+  },
+  {
+    "code": "MZ",
+    "iso_name": "Mozambique",
+    "vietnamese_name": "Mozambique"
+  },
+  {
+    "code": "MM",
+    "iso_name": "Myanmar",
+    "vietnamese_name": "Myanmar"
+  },
+  {
+    "code": "NA",
+    "iso_name": "Namibia",
+    "vietnamese_name": "Namibia"
+  },
+  {
+    "code": "NR",
+    "iso_name": "Nauru",
+    "vietnamese_name": "Nauru"
+  },
+  {
+    "code": "NP",
+    "iso_name": "Nepal",
+    "vietnamese_name": "Nepal"
+  },
+  {
+    "code": "NL",
+    "iso_name": "Netherlands",
+    "vietnamese_name": "Hà Lan"
+  },
+  {
+    "code": "AN",
+    "iso_name": "Netherlands Antilles",
+    "vietnamese_name": "Antilles Hà Lan"
+  },
+  {
+    "code": "NC",
+    "iso_name": "New Caledonia",
+    "vietnamese_name": "New Caledonia"
+  },
+  {
+    "code": "NZ",
+    "iso_name": "New Zealand",
+    "vietnamese_name": "New Zealand"
+  },
+  {
+    "code": "NI",
+    "iso_name": "Nicaragua",
+    "vietnamese_name": "Nicaragua"
+  },
+  {
+    "code": "NE",
+    "iso_name": "Niger",
+    "vietnamese_name": "Niger"
+  },
+  {
+    "code": "NG",
+    "iso_name": "Nigeria",
+    "vietnamese_name": "Nigeria"
+  },
+  {
+    "code": "NU",
+    "iso_name": "Niue",
+    "vietnamese_name": "Niue"
+  },
+  {
+    "code": "NF",
+    "iso_name": "Norfolk Island",
+    "vietnamese_name": "Đảo Norfolk"
+  },
+  {
+    "code": "MP",
+    "iso_name": "Northern Mariana Islands",
+    "vietnamese_name": "Quần đảo Bắc Mariana"
+  },
+  {
+    "code": "NO",
+    "iso_name": "Norway",
+    "vietnamese_name": "Na Uy"
+  },
+  {
+    "code": "OM",
+    "iso_name": "Oman",
+    "vietnamese_name": "Oman"
+  },
+  {
+    "code": "PK",
+    "iso_name": "Pakistan",
+    "vietnamese_name": "Pakistan"
+  },
+  {
+    "code": "PW",
+    "iso_name": "Palau",
+    "vietnamese_name": "Palau"
+  },
+  {
+    "code": "PS",
+    "iso_name": "Palestinian Territory, Occupied",
+    "vietnamese_name": "Lãnh thổ Palestine"
+  },
+  {
+    "code": "PA",
+    "iso_name": "Panama",
+    "vietnamese_name": "Panama"
+  },
+  {
+    "code": "PG",
+    "iso_name": "Papua New Guinea",
+    "vietnamese_name": "Papua New Guinea"
+  },
+  {
+    "code": "PY",
+    "iso_name": "Paraguay",
+    "vietnamese_name": "Paraguay"
+  },
+  {
+    "code": "PE",
+    "iso_name": "Peru",
+    "vietnamese_name": "Peru"
+  },
+  {
+    "code": "PH",
+    "iso_name": "Philippines",
+    "vietnamese_name": "Philippines"
+  },
+  {
+    "code": "PN",
+    "iso_name": "Pitcairn",
+    "vietnamese_name": "Pitcairn"
+  },
+  {
+    "code": "PL",
+    "iso_name": "Poland",
+    "vietnamese_name": "Ba Lan"
+  },
+  {
+    "code": "PT",
+    "iso_name": "Portugal",
+    "vietnamese_name": "Bồ Đào Nha"
+  },
+  {
+    "code": "PR",
+    "iso_name": "Puerto Rico",
+    "vietnamese_name": "Puerto Rico"
+  },
+  {
+    "code": "QA",
+    "iso_name": "Qatar",
+    "vietnamese_name": "Qatar"
+  },
+  {
+    "code": "RE",
+    "iso_name": "Reunion",
+    "vietnamese_name": "Réunion"
+  },
+  {
+    "code": "RO",
+    "iso_name": "Romania",
+    "vietnamese_name": "Romania"
+  },
+  {
+    "code": "RU",
+    "iso_name": "Russian Federation",
+    "vietnamese_name": "Nga"
+  },
+  {
+    "code": "RW",
+    "iso_name": "RWANDA",
+    "vietnamese_name": "Rwanda"
+  },
+  {
+    "code": "SH",
+    "iso_name": "Saint Helena",
+    "vietnamese_name": "Saint Helena"
+  },
+  {
+    "code": "KN",
+    "iso_name": "Saint Kitts and Nevis",
+    "vietnamese_name": "Saint Kitts và Nevis"
+  },
+  {
+    "code": "LC",
+    "iso_name": "Saint Lucia",
+    "vietnamese_name": "Saint Lucia"
+  },
+  {
+    "code": "PM",
+    "iso_name": "Saint Pierre and Miquelon",
+    "vietnamese_name": "Saint Pierre và Miquelon"
+  },
+  {
+    "code": "VC",
+    "iso_name": "Saint Vincent and the Grenadines",
+    "vietnamese_name": "Saint Vincent và Grenadines"
+  },
+  {
+    "code": "WS",
+    "iso_name": "Samoa",
+    "vietnamese_name": "Samoa"
+  },
+  {
+    "code": "SM",
+    "iso_name": "San Marino",
+    "vietnamese_name": "San Marino"
+  },
+  {
+    "code": "ST",
+    "iso_name": "Sao Tome and Principe",
+    "vietnamese_name": "São Tomé và Príncipe"
+  },
+  {
+    "code": "SA",
+    "iso_name": "Saudi Arabia",
+    "vietnamese_name": "Ả Rập Xê Út"
+  },
+  {
+    "code": "SN",
+    "iso_name": "Senegal",
+    "vietnamese_name": "Senegal"
+  },
+  {
+    "code": "CS",
+    "iso_name": "Serbia and Montenegro",
+    "vietnamese_name": "Serbia và Montenegro"
+  },
+  {
+    "code": "SC",
+    "iso_name": "Seychelles",
+    "vietnamese_name": "Seychelles"
+  },
+  {
+    "code": "SL",
+    "iso_name": "Sierra Leone",
+    "vietnamese_name": "Sierra Leone"
+  },
+  {
+    "code": "SG",
+    "iso_name": "Singapore",
+    "vietnamese_name": "Singapore"
+  },
+  {
+    "code": "SK",
+    "iso_name": "Slovakia",
+    "vietnamese_name": "Slovakia"
+  },
+  {
+    "code": "SI",
+    "iso_name": "Slovenia",
+    "vietnamese_name": "Slovenia"
+  },
+  {
+    "code": "SB",
+    "iso_name": "Solomon Islands",
+    "vietnamese_name": "Quần đảo Solomon"
+  },
+  {
+    "code": "SO",
+    "iso_name": "Somalia",
+    "vietnamese_name": "Somalia"
+  },
+  {
+    "code": "ZA",
+    "iso_name": "South Africa",
+    "vietnamese_name": "Nam Phi"
+  },
+  {
+    "code": "GS",
+    "iso_name": "South Georgia and the South Sandwich Islands",
+    "vietnamese_name": "Nam Georgia và Quần đảo Nam Sandwich"
+  },
+  {
+    "code": "ES",
+    "iso_name": "Spain",
+    "vietnamese_name": "Tây Ban Nha"
+  },
+  {
+    "code": "LK",
+    "iso_name": "Sri Lanka",
+    "vietnamese_name": "Sri Lanka"
+  },
+  {
+    "code": "SD",
+    "iso_name": "Sudan",
+    "vietnamese_name": "Sudan"
+  },
+  {
+    "code": "SR",
+    "iso_name": "Suriname",
+    "vietnamese_name": "Suriname"
+  },
+  {
+    "code": "SJ",
+    "iso_name": "Svalbard and Jan Mayen",
+    "vietnamese_name": "Svalbard và Jan Mayen"
+  },
+  {
+    "code": "SZ",
+    "iso_name": "Swaziland",
+    "vietnamese_name": "Eswatini"
+  },
+  {
+    "code": "SE",
+    "iso_name": "Sweden",
+    "vietnamese_name": "Thụy Điển"
+  },
+  {
+    "code": "CH",
+    "iso_name": "Switzerland",
+    "vietnamese_name": "Thụy Sĩ"
+  },
+  {
+    "code": "SY",
+    "iso_name": "Syrian Arab Republic",
+    "vietnamese_name": "Syria"
+  },
+  {
+    "code": "TW",
+    "iso_name": "Taiwan, Province of China",
+    "vietnamese_name": "Đài Loan"
+  },
+  {
+    "code": "TJ",
+    "iso_name": "Tajikistan",
+    "vietnamese_name": "Tajikistan"
+  },
+  {
+    "code": "TZ",
+    "iso_name": "Tanzania, United Republic of",
+    "vietnamese_name": "Tanzania"
+  },
+  {
+    "code": "TH",
+    "iso_name": "Thailand",
+    "vietnamese_name": "Thái Lan"
+  },
+  {
+    "code": "TL",
+    "iso_name": "Timor-Leste",
+    "vietnamese_name": "Timor-Leste"
+  },
+  {
+    "code": "TG",
+    "iso_name": "Togo",
+    "vietnamese_name": "Togo"
+  },
+  {
+    "code": "TK",
+    "iso_name": "Tokelau",
+    "vietnamese_name": "Tokelau"
+  },
+  {
+    "code": "TO",
+    "iso_name": "Tonga",
+    "vietnamese_name": "Tonga"
+  },
+  {
+    "code": "TT",
+    "iso_name": "Trinidad and Tobago",
+    "vietnamese_name": "Trinidad và Tobago"
+  },
+  {
+    "code": "TN",
+    "iso_name": "Tunisia",
+    "vietnamese_name": "Tunisia"
+  },
+  {
+    "code": "TR",
+    "iso_name": "Turkey",
+    "vietnamese_name": "Thổ Nhĩ Kỳ"
+  },
+  {
+    "code": "TM",
+    "iso_name": "Turkmenistan",
+    "vietnamese_name": "Turkmenistan"
+  },
+  {
+    "code": "TC",
+    "iso_name": "Turks and Caicos Islands",
+    "vietnamese_name": "Quần đảo Turks và Caicos"
+  },
+  {
+    "code": "TV",
+    "iso_name": "Tuvalu",
+    "vietnamese_name": "Tuvalu"
+  },
+  {
+    "code": "UG",
+    "iso_name": "Uganda",
+    "vietnamese_name": "Uganda"
+  },
+  {
+    "code": "UA",
+    "iso_name": "Ukraine",
+    "vietnamese_name": "Ukraine"
+  },
+  {
+    "code": "AE",
+    "iso_name": "United Arab Emirates",
+    "vietnamese_name": "Các Tiểu vương quốc Ả Rập Thống nhất"
+  },
+  {
+    "code": "GB",
+    "iso_name": "United Kingdom",
+    "vietnamese_name": "Vương quốc Anh"
+  },
+  {
+    "code": "US",
+    "iso_name": "United States",
+    "vietnamese_name": "Hoa Kỳ"
+  },
+  {
+    "code": "UM",
+    "iso_name": "United States Minor Outlying Islands",
+    "vietnamese_name": "Các đảo xa xôi nhỏ của Hoa Kỳ"
+  },
+  {
+    "code": "UY",
+    "iso_name": "Uruguay",
+    "vietnamese_name": "Uruguay"
+  },
+  {
+    "code": "UZ",
+    "iso_name": "Uzbekistan",
+    "vietnamese_name": "Uzbekistan"
+  },
+  {
+    "code": "VU",
+    "iso_name": "Vanuatu",
+    "vietnamese_name": "Vanuatu"
+  },
+  {
+    "code": "VE",
+    "iso_name": "Venezuela",
+    "vietnamese_name": "Venezuela"
+  },
+  {
+    "code": "VN",
+    "iso_name": "Viet Nam",
+    "vietnamese_name": "Việt Nam"
+  },
+  {
+    "code": "VG",
+    "iso_name": "Virgin Islands, British",
+    "vietnamese_name": "Quần đảo Virgin thuộc Anh"
+  },
+  {
+    "code": "VI",
+    "iso_name": "Virgin Islands, U.S.",
+    "vietnamese_name": "Quần đảo Virgin của Hoa Kỳ"
+  },
+  {
+    "code": "WF",
+    "iso_name": "Wallis and Futuna",
+    "vietnamese_name": "Wallis và Futuna"
+  },
+  {
+    "code": "EH",
+    "iso_name": "Western Sahara",
+    "vietnamese_name": "Tây Sahara"
+  },
+  {
+    "code": "YE",
+    "iso_name": "Yemen",
+    "vietnamese_name": "Yemen"
+  },
+  {
+    "code": "ZM",
+    "iso_name": "Zambia",
+    "vietnamese_name": "Zambia"
+  },
+  {
+    "code": "ZW",
+    "iso_name": "Zimbabwe",
+    "vietnamese_name": "Zimbabwe"
+  }
+]

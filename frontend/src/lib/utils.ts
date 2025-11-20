@@ -1,5 +1,14 @@
+import { main } from "@wailsjs/go/models";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import countries from "./countries.json";
+
+export const COUNTRY_CODES = countries.map((c) => c.code);
+export const PROTOCOLS = {
+  SOCKS5: "socks5",
+  HTTP: "http",
+  SSH: "ssh",
+};
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -38,4 +47,53 @@ export function pick<
 
 export function equalJson(a: any, b: any) {
   return JSON.stringify(a) === JSON.stringify(b);
+}
+
+export function sortBy<T>(arr: T[], ...funcs: ((a: T) => any)[]) {
+  const res = [...arr];
+
+  res.sort((a, b) => {
+    for (const f of funcs) {
+      if (f(a) > f(b)) {
+        return 1;
+      }
+    }
+
+    return Number(a > b);
+  });
+
+  return res;
+}
+
+export function getTags(tags: Record<string, boolean>) {
+  return sortBy(
+    Object.entries(tags)
+      .filter(([, val]) => val)
+      .map(([key]) => key),
+    (t) => COUNTRY_CODES.includes(t),
+    (t) => Object.values(PROTOCOLS).includes(t),
+  );
+}
+
+export function getServerString(server: main.ManagedProxyServer["Server"]) {
+  if (!server) {
+    return "";
+  }
+
+  let result = `${server.Host}:${server.Port}`;
+
+  if (server.Auth) {
+    result = `${server.Auth.Username}:${server.Auth.Password}@${result}`;
+  }
+
+  switch (true) {
+    case server.Protocols[PROTOCOLS.HTTP]:
+      result = `${PROTOCOLS.HTTP}://${result}`;
+      break;
+    case server.Protocols[PROTOCOLS.SOCKS5]:
+      result = `${PROTOCOLS.SOCKS5}://${result}`;
+      break;
+  }
+
+  return result;
 }

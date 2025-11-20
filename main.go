@@ -102,6 +102,10 @@ func (a *App) startup(ctx context.Context) {
 			Username: "khanh",
 			Password: "khanh",
 		}),
+		proxyserver.NewServer("64.137.75.244", 6164, &common.ProxyAuth{
+			Username: "fuaultwx",
+			Password: "frqbhyi7fs1a",
+		}),
 	})
 
 	for _, s := range ListenerServerManager.Servers {
