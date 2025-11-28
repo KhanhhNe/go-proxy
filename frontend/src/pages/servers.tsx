@@ -10,12 +10,12 @@ import {
   useNow,
 } from "@/lib/utils";
 import { useManagerStore } from "@/state";
+import { ManagedProxyServer } from "@bindings/go-proxy";
 import {
   ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
 } from "@tanstack/react-table";
-import { main } from "@wailsjs/go/models";
 import { Clipboard } from "lucide-react";
 import { DateTime } from "luxon";
 import { useMemo, useState } from "react";
@@ -23,14 +23,14 @@ import { useMemo, useState } from "react";
 export function PageServers() {
   const manager = useManagerStore((state) => state.manager);
   const servers = useMemo(
-    () => Object.values(manager?.Servers || {}),
+    () => Object.values(manager?.Servers || {}).filter(Boolean),
     [manager],
   );
   const now = useNow();
 
   const [rowSelection, setRowSelection] = useState({});
 
-  const columns: ColumnDef<main.ManagedProxyServer>[] = useMemo(
+  const columns: ColumnDef<ManagedProxyServer>[] = useMemo(
     () => [
       {
         id: "host",

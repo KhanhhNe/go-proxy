@@ -2,15 +2,15 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable, useTable } from "@/components/ui/table";
 import { formatByte } from "@/lib/utils";
 import { useManagerStore } from "@/state";
+import { ManagedLocalListener } from "@bindings/go-proxy";
 import {
   ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
 } from "@tanstack/react-table";
-import { main } from "@wailsjs/go/models";
 import { useMemo, useState } from "react";
 
-const columns: ColumnDef<main.ManagedLocalListener>[] = [
+const columns: ColumnDef<ManagedLocalListener>[] = [
   {
     id: "port",
     header: "Port",
@@ -59,7 +59,7 @@ const columns: ColumnDef<main.ManagedLocalListener>[] = [
 export function PageIndex() {
   const manager = useManagerStore((state) => state.manager);
   const listeners = useMemo(
-    () => Object.values(manager?.Listeners || {}),
+    () => Object.values(manager?.Listeners || {}).filter(Boolean),
     [manager],
   );
 

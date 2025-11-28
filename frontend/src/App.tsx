@@ -1,4 +1,4 @@
-import { GetManager } from "@wailsjs/go/main/App";
+import { GetManager } from "@bindings/go-proxy/myservice";
 import { useEffect } from "react";
 import { AppSidebar } from "./components/app-sidebar";
 import { SidebarProvider } from "./components/ui/sidebar";
@@ -12,7 +12,7 @@ function App() {
 
   useEffect(() => {
     function fetchManager() {
-      GetManager().then(setManager);
+      GetManager().then((m) => (m ? setManager(m) : null));
 
       setTimeout(fetchManager, 1000);
     }

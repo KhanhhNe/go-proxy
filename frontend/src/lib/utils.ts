@@ -1,4 +1,4 @@
-import { main } from "@wailsjs/go/models";
+import { ManagedProxyServer } from "@bindings/go-proxy";
 import { clsx, type ClassValue } from "clsx";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
@@ -77,7 +77,7 @@ export function getTags(tags: Record<string, boolean>) {
   );
 }
 
-export function getServerString(server: main.ManagedProxyServer["Server"]) {
+export function getServerString(server: ManagedProxyServer["Server"]) {
   if (!server) {
     return "";
   }
@@ -100,7 +100,7 @@ export function getServerString(server: main.ManagedProxyServer["Server"]) {
   return result;
 }
 
-export function useNow(interval = 1000) {
+export function useNow(interval = 500) {
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {

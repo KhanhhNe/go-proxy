@@ -13,7 +13,7 @@ export default defineConfig([
   },
   tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
-  globalIgnores(["wailsjs/", "dist/"]),
+  globalIgnores(["bindings/", "dist/"]),
   {
     rules: {
       "react/react-in-jsx-scope": "off",

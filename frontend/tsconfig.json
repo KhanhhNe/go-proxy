@@ -1,30 +1,31 @@
+/** 
+ * This file tells your IDE where the root of your JavaScript project is, and sets some
+ * options that it can use to provide autocompletion and other features.  
+ */
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "allowJs": false,
-    "skipLibCheck": true,
-    "esModuleInterop": false,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
+    "allowJs": true,
     "noEmit": true,
+    "moduleResolution": "bundler",
+    /**
+     * The target and module can be set to ESNext to allow writing modern JavaScript, 
+     * and Vite will compile down to the level of "build.target" specified in the vite config file.
+     * Builds will error if you use a feature that cannot be compiled down to the target level.
+     */
+    "target": "ESNext",
+    "module": "ESNext",
+    "resolveJsonModule": true,
+    /**
+     * Enable checkJs if you'd like type checking in `.js` files.
+     */
+    "checkJs": false,
+    "strict": true,
+    "skipLibCheck": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@wailsjs/*": ["./wailsjs/*"]
+      "@bindings/*": ["./bindings/*"]
     }
   },
-  "include": ["src", "wailsjs"],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
+  "include": ["src", "bindings"]
 }
