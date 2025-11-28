@@ -13,7 +13,7 @@ export const usePageStore = create<{
   page: PageName;
   setPage: (p: PageName) => void;
 }>((set) => ({
-  page: PAGES.index,
+  page: PAGES.servers,
   setPage: (page: PageName) => set({ page }),
 }));
 

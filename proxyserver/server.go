@@ -15,11 +15,13 @@ import (
 )
 
 type Server struct {
-	Host     string
-	Port     int
-	Auth     *common.ProxyAuth
-	Timeout  time.Duration
-	PublicIp string
+	Host        string
+	Port        int
+	Auth        *common.ProxyAuth
+	Timeout     time.Duration
+	PublicIp    string
+	Latency     time.Duration
+	LastChecked *time.Time
 
 	Protocols map[string]bool
 
@@ -55,6 +57,8 @@ func NewServer(host string, port int, auth *common.ProxyAuth) *Server {
 		auth,
 		30 * time.Second,
 		"",
+		0,
+		nil,
 		map[string]bool{
 			PROTO_Ssh:    false,
 			PROTO_Socks5: false,
@@ -99,10 +103,12 @@ func (s *Server) Connect(target string) (net.Conn, error) {
 	return f(target)
 }
 
-func (s *Server) CheckProtocols() map[string]bool {
+func (s *Server) CheckServer() {
 	var wg sync.WaitGroup
 	res := map[string]bool{}
 	var mu sync.Mutex
+
+	start := time.Now()
 
 	for proto := range s.Protocols {
 		if proto == PROTO_Direct {
@@ -127,6 +133,11 @@ func (s *Server) CheckProtocols() map[string]bool {
 	}
 
 	wg.Wait()
+	s.Latency = time.Since(start)
+	if s.LastChecked == nil {
+		s.LastChecked = new(time.Time)
+	}
+	*s.LastChecked = time.Now()
 
 	protos := ""
 	for proto, supported := range res {
@@ -136,7 +147,7 @@ func (s *Server) CheckProtocols() map[string]bool {
 	}
 	s.Printlnf("Supported protocols: %s", strings.TrimLeft(protos, ","))
 
-	return res
+	s.Protocols = res
 }
 
 func (s *Server) CheckAlive() bool {

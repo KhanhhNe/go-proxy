@@ -11,4 +11,9 @@ export default defineConfig({
       "@wailsjs": path.resolve(__dirname, "./wailsjs"),
     },
   },
+  server: {
+    watch: {
+      ignored: ["**/wailsjs/**"],
+    },
+  },
 });

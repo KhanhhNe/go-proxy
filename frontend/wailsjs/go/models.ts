@@ -198,6 +198,9 @@ export namespace proxyserver {
 	    Auth?: common.ProxyAuth;
 	    Timeout: number;
 	    PublicIp: string;
+	    Latency: number;
+	    // Go type: time
+	    LastChecked?: any;
 	    Protocols: Record<string, boolean>;
 	
 	    static createFrom(source: any = {}) {
@@ -211,6 +214,8 @@ export namespace proxyserver {
 	        this.Auth = this.convertValues(source["Auth"], common.ProxyAuth);
 	        this.Timeout = source["Timeout"];
 	        this.PublicIp = source["PublicIp"];
+	        this.Latency = source["Latency"];
+	        this.LastChecked = this.convertValues(source["LastChecked"], null);
 	        this.Protocols = source["Protocols"];
 	    }
 	

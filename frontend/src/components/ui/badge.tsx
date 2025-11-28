@@ -1,7 +1,8 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
+import { cn, countries } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 const badgeVariants = cva(
   "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
@@ -35,4 +36,26 @@ function Badge({ className, variant, ...props }: BadgeProps) {
   );
 }
 
-export { Badge, badgeVariants };
+function Tag({ className, text }: { className?: string; text: string }) {
+  const country = countries.find((c) => c.code === text.toUpperCase());
+
+  return (
+    <Tooltip>
+      <TooltipTrigger>
+        <Badge className={className}>
+          {country && (
+            <div className={`flag:${text} mr-1 rounded-[.15rem]`}></div>
+          )}
+          {text}
+        </Badge>
+      </TooltipTrigger>
+      {country && (
+        <TooltipContent>
+          <p>{country.vietnamese_name}</p>
+        </TooltipContent>
+      )}
+    </Tooltip>
+  );
+}
+
+export { Badge, badgeVariants, Tag };

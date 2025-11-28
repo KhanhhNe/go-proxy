@@ -80,34 +80,9 @@ func (m *listenerServerManager) AddServers(servers []*proxyserver.Server) {
 			s,
 			map[string]bool{},
 		}
-
-		threadpool.ServerPrecheckPool.AddTask(func(s *ManagedProxyServer) func() {
-			return func() {
-				s.Server.Protocols = s.Server.CheckProtocols()
-				for proto, supported := range managedServer.Server.Protocols {
-					if supported {
-						managedServer.AddTags(proto)
-					}
-				}
-
-				if s.Server.PublicIp != "" {
-					ip, err := netip.ParseAddr(s.Server.PublicIp)
-					if err != nil {
-						return
-					}
-
-					countryCode, err := common.GetIpCountry(ip)
-					if err != nil {
-						s.Server.Printlnf("Error getting IP country: IP %s, error: %+v", s.Server.PublicIp, err)
-						return
-					}
-
-					s.AddTags(countryCode)
-				}
-			}
-		}(managedServer))
-
 		m.Servers[s.String()] = managedServer
+
+		managedServer.checkServer()
 	}
 }
 
@@ -170,6 +145,42 @@ func (m *listenerServerManager) serveInactiveListeners() {
 			})
 		}(l.ctx)
 	}
+}
+
+type CheckServerThread struct {
+	server *ManagedProxyServer
+}
+
+func (t *CheckServerThread) Run() {
+	s := t.server
+
+	s.Server.CheckServer()
+	for proto, supported := range s.Server.Protocols {
+		if supported {
+			s.AddTags(proto)
+		}
+	}
+
+	if s.Server.PublicIp != "" {
+		ip, err := netip.ParseAddr(s.Server.PublicIp)
+		if err != nil {
+			return
+		}
+
+		countryCode, err := common.GetIpCountry(ip)
+		if err != nil {
+			s.Server.Printlnf("Error getting IP country: IP %s, error: %+v", s.Server.PublicIp, err)
+			return
+		}
+
+		s.AddTags(countryCode)
+	}
+}
+
+var CheckServerPool = threadpool.NewThreadPool[*CheckServerThread](50)
+
+func (s *ManagedProxyServer) checkServer() {
+	CheckServerPool.AddTask(&CheckServerThread{s})
 }
 
 func (m *listenerServerManager) Serve() {

@@ -1,8 +1,10 @@
 import { main } from "@wailsjs/go/models";
 import { clsx, type ClassValue } from "clsx";
+import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import countries from "./countries.json";
+import countriesJson from "./countries.json";
 
+export const countries = countriesJson;
 export const COUNTRY_CODES = countries.map((c) => c.code);
 export const PROTOCOLS = {
   SOCKS5: "socks5",
@@ -96,4 +98,20 @@ export function getServerString(server: main.ManagedProxyServer["Server"]) {
   }
 
   return result;
+}
+
+export function useNow(interval = 1000) {
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const int = setInterval(() => setNow(new Date()), interval);
+
+    return () => clearInterval(int);
+  }, []);
+
+  return now;
+}
+
+export function durationToMs(duration?: number) {
+  return duration != null ? Math.round(duration / 1_000_000) : duration;
 }

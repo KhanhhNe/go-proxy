@@ -16,6 +16,7 @@
 	// 	"description": "Log output to console"
 	// }
 	"Return wrapped error": {
+	    "scope": "go",
 		"prefix": "ew",
 		"body": [
 			"if err != nil {",
