@@ -17,7 +17,7 @@ import {
   getPaginationRowModel,
 } from "@tanstack/react-table";
 import { Clipboard } from "lucide-react";
-import { DateTime } from "luxon";
+import { DateTime, Duration } from "luxon";
 import { useMemo, useState } from "react";
 
 export function PageServers() {
@@ -104,13 +104,32 @@ export function PageServers() {
         id: "lastChecked",
         header: "Check",
         cell: ({ row }) => {
-          const since = row.original.Server?.LastChecked;
-          return since
-            ? DateTime.fromISO(since).toRelative({
-                base: DateTime.fromJSDate(now),
-                style: "narrow",
-              })
-            : "";
+          const lastChecked = DateTime.fromISO(
+            row.original.Server?.LastChecked,
+          ) as DateTime<true> | null;
+          const text =
+            lastChecked?.toRelative({
+              base: DateTime.fromJSDate(now),
+              style: "narrow",
+            }) ?? "";
+
+          const recheck = durationToMs(manager?.ServerRecheckInterval);
+          const deadline = recheck
+            ? DateTime.now().minus(Duration.fromMillis(recheck))
+            : null;
+
+          return (
+            <span
+              className={cn(
+                deadline &&
+                  lastChecked &&
+                  lastChecked < deadline &&
+                  "bg-yellow-400",
+              )}
+            >
+              {text}
+            </span>
+          );
         },
       },
       {

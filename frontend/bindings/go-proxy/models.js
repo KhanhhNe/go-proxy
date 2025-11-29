@@ -18,6 +18,9 @@ import * as net$0 from "../net/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
 import * as sync$0 from "../sync/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as time$0 from "../time/models.js";
 
 export class ListenerStat {
     /**
@@ -263,6 +266,13 @@ export class listenerServerManager {
              */
             this["Servers"] = {};
         }
+        if (!("ServerRecheckInterval" in $$source)) {
+            /**
+             * @member
+             * @type {time$0.Duration}
+             */
+            this["ServerRecheckInterval"] = time$0.Duration.$zero;
+        }
         if (!("IsServing" in $$source)) {
             /**
              * @member
@@ -289,7 +299,7 @@ export class listenerServerManager {
     static createFrom($$source = {}) {
         const $$createField0_0 = $$createType12;
         const $$createField1_0 = $$createType15;
-        const $$createField3_0 = $$createType16;
+        const $$createField4_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("Listeners" in $$parsedSource) {
             $$parsedSource["Listeners"] = $$createField0_0($$parsedSource["Listeners"]);
@@ -298,7 +308,7 @@ export class listenerServerManager {
             $$parsedSource["Servers"] = $$createField1_0($$parsedSource["Servers"]);
         }
         if ("Wg" in $$parsedSource) {
-            $$parsedSource["Wg"] = $$createField3_0($$parsedSource["Wg"]);
+            $$parsedSource["Wg"] = $$createField4_0($$parsedSource["Wg"]);
         }
         return new listenerServerManager(/** @type {Partial<listenerServerManager>} */($$parsedSource));
     }

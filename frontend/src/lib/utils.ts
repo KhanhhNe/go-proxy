@@ -100,11 +100,11 @@ export function getServerString(server: ManagedProxyServer["Server"]) {
   return result;
 }
 
-export function useNow(interval = 500) {
+export function useNow() {
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
-    const int = setInterval(() => setNow(new Date()), interval);
+    const int = setInterval(() => setNow(new Date()), 500);
 
     return () => clearInterval(int);
   }, []);

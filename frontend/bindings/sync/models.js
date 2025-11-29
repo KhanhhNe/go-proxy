@@ -7,6 +7,42 @@
 import { Create as $Create } from "@wailsio/runtime";
 
 /**
+ * A Mutex is a mutual exclusion lock.
+ * The zero value for a Mutex is an unlocked mutex.
+ * 
+ * A Mutex must not be copied after first use.
+ * 
+ * In the terminology of [the Go memory model],
+ * the n'th call to [Mutex.Unlock] “synchronizes before” the m'th call to [Mutex.Lock]
+ * for any n < m.
+ * A successful call to [Mutex.TryLock] is equivalent to a call to Lock.
+ * A failed call to TryLock does not establish any “synchronizes before”
+ * relation at all.
+ * 
+ * [the Go memory model]: https://go.dev/ref/mem
+ */
+export class Mutex {
+    /**
+     * Creates a new Mutex instance.
+     * @param {Partial<Mutex>} [$$source = {}] - The source object to create the Mutex.
+     */
+    constructor($$source = {}) {
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Mutex instance from a string or object.
+     * @param {any} [$$source = {}]
+     * @returns {Mutex}
+     */
+    static createFrom($$source = {}) {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new Mutex(/** @type {Partial<Mutex>} */($$parsedSource));
+    }
+}
+
+/**
  * A WaitGroup is a counting semaphore typically used to wait
  * for a group of goroutines or tasks to finish.
  * 

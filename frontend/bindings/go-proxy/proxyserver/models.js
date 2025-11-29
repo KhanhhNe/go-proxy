@@ -11,6 +11,9 @@ import { Create as $Create } from "@wailsio/runtime";
 import * as common$0 from "../common/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as sync$0 from "../../sync/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as time$0 from "../../time/models.js";
 
 export class Server {
@@ -68,12 +71,26 @@ export class Server {
              */
             this["LastChecked"] = null;
         }
+        if (!("CheckQueued" in $$source)) {
+            /**
+             * @member
+             * @type {boolean}
+             */
+            this["CheckQueued"] = false;
+        }
         if (!("Protocols" in $$source)) {
             /**
              * @member
              * @type {{ [_: string]: boolean }}
              */
             this["Protocols"] = {};
+        }
+        if (!("Mu" in $$source)) {
+            /**
+             * @member
+             * @type {sync$0.Mutex}
+             */
+            this["Mu"] = (new sync$0.Mutex());
         }
 
         Object.assign(this, $$source);
@@ -86,13 +103,17 @@ export class Server {
      */
     static createFrom($$source = {}) {
         const $$createField2_0 = $$createType1;
-        const $$createField7_0 = $$createType2;
+        const $$createField8_0 = $$createType2;
+        const $$createField9_0 = $$createType3;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("Auth" in $$parsedSource) {
             $$parsedSource["Auth"] = $$createField2_0($$parsedSource["Auth"]);
         }
         if ("Protocols" in $$parsedSource) {
-            $$parsedSource["Protocols"] = $$createField7_0($$parsedSource["Protocols"]);
+            $$parsedSource["Protocols"] = $$createField8_0($$parsedSource["Protocols"]);
+        }
+        if ("Mu" in $$parsedSource) {
+            $$parsedSource["Mu"] = $$createField9_0($$parsedSource["Mu"]);
         }
         return new Server(/** @type {Partial<Server>} */($$parsedSource));
     }
@@ -102,3 +123,4 @@ export class Server {
 const $$createType0 = common$0.ProxyAuth.createFrom;
 const $$createType1 = $Create.Nullable($$createType0);
 const $$createType2 = $Create.Map($Create.Any, $Create.Any);
+const $$createType3 = sync$0.Mutex.createFrom;

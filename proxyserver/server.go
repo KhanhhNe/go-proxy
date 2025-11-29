@@ -22,8 +22,10 @@ type Server struct {
 	PublicIp    string
 	Latency     time.Duration
 	LastChecked *time.Time
+	CheckQueued bool
 
 	Protocols map[string]bool
+	Mu        sync.Mutex
 
 	// Protocol-specific state
 	sshState    *ServerSshState
@@ -59,12 +61,14 @@ func NewServer(host string, port int, auth *common.ProxyAuth) *Server {
 		"",
 		0,
 		nil,
+		false,
 		map[string]bool{
 			PROTO_Ssh:    false,
 			PROTO_Socks5: false,
 			PROTO_Http:   false,
 			PROTO_Direct: false,
 		},
+		sync.Mutex{},
 
 		&ServerSshState{},
 		&ServerHttpState{},
@@ -105,8 +109,6 @@ func (s *Server) Connect(target string) (net.Conn, error) {
 
 func (s *Server) CheckServer() {
 	var wg sync.WaitGroup
-	res := map[string]bool{}
-	var mu sync.Mutex
 
 	start := time.Now()
 
@@ -122,32 +124,37 @@ func (s *Server) CheckServer() {
 		wg.Add(1)
 		go func(p string, c *Server) {
 			alive := c.CheckAlive()
-			mu.Lock()
-			res[p] = alive
+			s.Mu.Lock()
+			s.Protocols[p] = alive
 			if alive {
 				s.PublicIp = copy.PublicIp
 			}
-			mu.Unlock()
+			s.Mu.Unlock()
 			wg.Done()
 		}(proto, copy)
 	}
 
 	wg.Wait()
-	s.Latency = time.Since(start)
+
+	s.Mu.Lock()
+
 	if s.LastChecked == nil {
 		s.LastChecked = new(time.Time)
 	}
+
+	s.Latency = time.Since(start)
 	*s.LastChecked = time.Now()
+	s.CheckQueued = false
+
+	s.Mu.Unlock()
 
 	protos := ""
-	for proto, supported := range res {
+	for proto, supported := range s.Protocols {
 		if supported {
 			protos += "," + proto
 		}
 	}
 	s.Printlnf("Supported protocols: %s", strings.TrimLeft(protos, ","))
-
-	s.Protocols = res
 }
 
 func (s *Server) CheckAlive() bool {
@@ -187,7 +194,9 @@ func (s *Server) CheckAlive() bool {
 		return false
 	}
 
+	s.Mu.Lock()
 	s.PublicIp = string(body)
+	s.Mu.Unlock()
 
 	return true
 }

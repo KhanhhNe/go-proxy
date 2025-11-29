@@ -9,6 +9,7 @@ import (
 	"maps"
 	"net/netip"
 	"sync"
+	"time"
 
 	"braces.dev/errtrace"
 )
@@ -31,8 +32,9 @@ type listenerServerManager struct {
 	Listeners map[int]*ManagedLocalListener
 	Servers   map[string]*ManagedProxyServer
 
-	IsServing bool
-	Wg        sync.WaitGroup
+	ServerRecheckInterval time.Duration
+	IsServing             bool
+	Wg                    sync.WaitGroup
 }
 
 type ServerFilter struct {
@@ -51,6 +53,7 @@ func NewListenerServerManager() (s *listenerServerManager) {
 	s = &listenerServerManager{
 		map[int]*ManagedLocalListener{},
 		map[string]*ManagedProxyServer{},
+		60 * time.Second,
 		false,
 		sync.WaitGroup{},
 	}
@@ -147,6 +150,25 @@ func (m *listenerServerManager) serveInactiveListeners() {
 	}
 }
 
+func (m *listenerServerManager) autoRecheckServers() {
+	for {
+		<-time.After(time.Second)
+		since := time.Now().Add(-m.ServerRecheckInterval)
+
+		for _, s := range m.Servers {
+			if s.Server.CheckQueued {
+				continue
+			}
+
+			if s.Server.LastChecked.After(since) {
+				continue
+			}
+
+			s.checkServer()
+		}
+	}
+}
+
 type CheckServerThread struct {
 	server *ManagedProxyServer
 }
@@ -180,11 +202,15 @@ func (t *CheckServerThread) Run() {
 var CheckServerPool = threadpool.NewThreadPool[*CheckServerThread](50)
 
 func (s *ManagedProxyServer) checkServer() {
+	s.Server.Mu.Lock()
+	s.Server.CheckQueued = true
+	s.Server.Mu.Unlock()
 	CheckServerPool.AddTask(&CheckServerThread{s})
 }
 
 func (m *listenerServerManager) Serve() {
 	m.IsServing = true
 	m.serveInactiveListeners()
+	m.Wg.Go(m.autoRecheckServers)
 	m.Wg.Wait()
 }
