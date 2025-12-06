@@ -71,13 +71,6 @@ export class Server {
              */
             this["LastChecked"] = null;
         }
-        if (!("CheckQueued" in $$source)) {
-            /**
-             * @member
-             * @type {boolean}
-             */
-            this["CheckQueued"] = false;
-        }
         if (!("Protocols" in $$source)) {
             /**
              * @member
@@ -103,17 +96,17 @@ export class Server {
      */
     static createFrom($$source = {}) {
         const $$createField2_0 = $$createType1;
-        const $$createField8_0 = $$createType2;
-        const $$createField9_0 = $$createType3;
+        const $$createField7_0 = $$createType2;
+        const $$createField8_0 = $$createType3;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("Auth" in $$parsedSource) {
             $$parsedSource["Auth"] = $$createField2_0($$parsedSource["Auth"]);
         }
         if ("Protocols" in $$parsedSource) {
-            $$parsedSource["Protocols"] = $$createField8_0($$parsedSource["Protocols"]);
+            $$parsedSource["Protocols"] = $$createField7_0($$parsedSource["Protocols"]);
         }
         if ("Mu" in $$parsedSource) {
-            $$parsedSource["Mu"] = $$createField9_0($$parsedSource["Mu"]);
+            $$parsedSource["Mu"] = $$createField8_0($$parsedSource["Mu"]);
         }
         return new Server(/** @type {Partial<Server>} */($$parsedSource));
     }

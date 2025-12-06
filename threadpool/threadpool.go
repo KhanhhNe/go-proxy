@@ -1,10 +1,12 @@
 package threadpool
 
 import (
+	"sync"
 	"time"
 )
 
 type Thread interface {
+	Id() string
 	Run()
 }
 
@@ -12,16 +14,21 @@ type Pool[T Thread] struct {
 	Size int
 
 	tasks      chan T
+	taskIds    map[string]bool
 	tasksQueue *Queue[T]
 	newTasks   chan bool
+
+	mu sync.Mutex
 }
 
 func NewThreadPool[T Thread](size int) *Pool[T] {
 	p := &Pool[T]{
 		0,
 		make(chan T),
+		map[string]bool{},
 		NewQueue[T](),
 		make(chan bool),
+		sync.Mutex{},
 	}
 
 	p.Scale(size)
@@ -51,6 +58,12 @@ func NewThreadPool[T Thread](size int) *Pool[T] {
 }
 
 func (p *Pool[T]) AddTask(t T) {
+	if _, already := p.taskIds[t.Id()]; already {
+		return
+	}
+
+	p.mu.Lock()
+	p.taskIds[t.Id()] = true
 	p.tasksQueue.Push(t)
 
 	// Avoid blocking, new tasks will be handled by the current running loop already
@@ -58,6 +71,8 @@ func (p *Pool[T]) AddTask(t T) {
 	case p.newTasks <- true:
 	default:
 	}
+
+	p.mu.Unlock()
 }
 
 func (p *Pool[T]) Scale(size int) {
@@ -77,6 +92,9 @@ func (p *Pool[T]) worker(id int) {
 			return
 		}
 
+		p.mu.Lock()
+		delete(p.taskIds, t.Id())
+		p.mu.Unlock()
 		t.Run()
 	}
 }

@@ -3,16 +3,18 @@ package threadpool
 import "sync"
 
 type QueueNode[T any] struct {
-	items []T
-	l     int
-	r     int
-	next  *QueueNode[T]
+	emptyItem T
+	items     []T
+	l         int
+	r         int
+	next      *QueueNode[T]
 }
 
 const NODE_SIZE = 10
 
 func NewQueueNode[T any]() *QueueNode[T] {
 	return &QueueNode[T]{
+		*new(T),
 		make([]T, NODE_SIZE),
 		-1,
 		0,
@@ -35,7 +37,7 @@ func (n *QueueNode[T]) HasMore() bool       { return n.l+1 < n.r }
 
 func (n *QueueNode[T]) Pop() (T, bool) {
 	if !n.HasMore() {
-		return *new(T), false
+		return n.emptyItem, false
 	}
 
 	n.l += 1
@@ -43,13 +45,15 @@ func (n *QueueNode[T]) Pop() (T, bool) {
 }
 
 type Queue[T any] struct {
-	head *QueueNode[T]
-	tail *QueueNode[T]
-	mu   sync.Mutex
+	emptyItem T
+	head      *QueueNode[T]
+	tail      *QueueNode[T]
+	mu        sync.Mutex
 }
 
 func NewQueue[T any]() *Queue[T] {
 	return &Queue[T]{
+		*new(T),
 		nil,
 		nil,
 		sync.Mutex{},
@@ -60,7 +64,7 @@ func (q *Queue[T]) Push(t T) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 
-	if q.tail == nil {
+	if q.head == nil || q.tail == nil {
 		// Queue is empty
 		q.head = NewQueueNode[T]()
 		q.tail = q.head
@@ -90,10 +94,13 @@ func (q *Queue[T]) Pop() (T, bool) {
 		if q.head.OutOfCapacity() {
 			// Head won't have any more items added since it's full already
 			q.head = q.head.next
+			if q.head == nil {
+				q.tail = nil
+			}
 		} else {
 			break
 		}
 	}
 
-	return *new(T), false
+	return q.emptyItem, false
 }

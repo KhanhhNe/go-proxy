@@ -156,11 +156,7 @@ func (m *listenerServerManager) autoRecheckServers() {
 		since := time.Now().Add(-m.ServerRecheckInterval)
 
 		for _, s := range m.Servers {
-			if s.Server.CheckQueued {
-				continue
-			}
-
-			if s.Server.LastChecked.After(since) {
+			if s.Server.LastChecked != nil && s.Server.LastChecked.After(since) {
 				continue
 			}
 
@@ -171,6 +167,10 @@ func (m *listenerServerManager) autoRecheckServers() {
 
 type CheckServerThread struct {
 	server *ManagedProxyServer
+}
+
+func (t *CheckServerThread) Id() string {
+	return t.server.Server.String()
 }
 
 func (t *CheckServerThread) Run() {
@@ -202,9 +202,6 @@ func (t *CheckServerThread) Run() {
 var CheckServerPool = threadpool.NewThreadPool[*CheckServerThread](50)
 
 func (s *ManagedProxyServer) checkServer() {
-	s.Server.Mu.Lock()
-	s.Server.CheckQueued = true
-	s.Server.Mu.Unlock()
 	CheckServerPool.AddTask(&CheckServerThread{s})
 }
 

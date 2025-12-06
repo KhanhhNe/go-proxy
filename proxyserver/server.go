@@ -22,7 +22,6 @@ type Server struct {
 	PublicIp    string
 	Latency     time.Duration
 	LastChecked *time.Time
-	CheckQueued bool
 
 	Protocols map[string]bool
 	Mu        sync.Mutex
@@ -61,7 +60,6 @@ func NewServer(host string, port int, auth *common.ProxyAuth) *Server {
 		"",
 		0,
 		nil,
-		false,
 		map[string]bool{
 			PROTO_Ssh:    false,
 			PROTO_Socks5: false,
@@ -144,7 +142,6 @@ func (s *Server) CheckServer() {
 
 	s.Latency = time.Since(start)
 	*s.LastChecked = time.Now()
-	s.CheckQueued = false
 
 	s.Mu.Unlock()
 
