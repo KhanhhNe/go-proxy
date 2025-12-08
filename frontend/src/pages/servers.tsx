@@ -9,7 +9,11 @@ import {
   getTags,
   useNow,
 } from "@/lib/utils";
-import { useManagerStore } from "@/state";
+import {
+  useAppStateStore,
+  useManagerStore,
+  useMatchingListener,
+} from "@/state";
 import { ManagedProxyServer } from "@bindings/go-proxy";
 import {
   ColumnDef,
@@ -21,12 +25,13 @@ import { DateTime, Duration } from "luxon";
 import { useMemo, useState } from "react";
 
 export function PageServers() {
-  const manager = useManagerStore((state) => state.manager);
-  const servers = useMemo(
-    () => Object.values(manager?.Servers || {}).filter(Boolean),
-    [manager],
+  const recheckInterval = useManagerStore(
+    (state) => state.manager?.ServerRecheckInterval,
   );
-  const now = useNow();
+  const servers = useManagerStore((state) =>
+    Object.values(state.manager?.Servers || {}).filter(Boolean),
+  );
+  const localIp = useAppStateStore((s) => s.state?.LocalIp);
 
   const [rowSelection, setRowSelection] = useState({});
 
@@ -104,6 +109,7 @@ export function PageServers() {
         id: "lastChecked",
         header: "Check",
         cell: ({ row }) => {
+          const now = useNow();
           const lastChecked = DateTime.fromISO(
             row.original.Server?.LastChecked,
           ) as DateTime<true> | null;
@@ -113,7 +119,7 @@ export function PageServers() {
               style: "narrow",
             }) ?? "";
 
-          const recheck = durationToMs(manager?.ServerRecheckInterval);
+          const recheck = durationToMs(recheckInterval);
           const deadline = recheck
             ? DateTime.now().minus(Duration.fromMillis(recheck))
             : null;
@@ -133,23 +139,55 @@ export function PageServers() {
         },
       },
       {
+        id: "listener",
+        header: "Port local",
+        cell: ({ row }) => {
+          const listener = useMatchingListener(row.original.Server?.Id ?? "");
+
+          if (listener) {
+            return listener.Listener?.Port;
+          }
+        },
+      },
+      {
         id: "actions",
         header: "Hành động",
-        cell: ({ row }) => (
-          <div className="flex gap-1">
-            <CopyTooltip
-              copyData={[getServerString(row.original.Server)]}
-              triggerProps={{ asChild: true }}
-            >
-              <Button size="icon" variant="outline">
-                <Clipboard />
-              </Button>
-            </CopyTooltip>
-          </div>
-        ),
+        cell: ({ row }) => {
+          const listener = useMatchingListener(
+            row.original.Server?.Id ?? "",
+          )?.Listener;
+
+          return (
+            <div className="flex gap-1">
+              <CopyTooltip copyData={[getServerString(row.original.Server)]}>
+                <Button size="icon" variant="outline">
+                  <div className="flex flex-col items-center">
+                    <span className="text-xs">Proxy</span>
+                    <Clipboard />
+                  </div>
+                </Button>
+              </CopyTooltip>
+
+              {listener && (
+                <CopyTooltip
+                  copyData={[
+                    `http://${localIp || "localhost"}:${listener.Port}`,
+                  ]}
+                >
+                  <Button size="icon" variant="outline">
+                    <div className="flex flex-col items-center">
+                      <span className="text-xs">LAN</span>
+                      <Clipboard />
+                    </div>
+                  </Button>
+                </CopyTooltip>
+              )}
+            </div>
+          );
+        },
       },
     ],
-    [now],
+    [],
   );
 
   const table = useTable({

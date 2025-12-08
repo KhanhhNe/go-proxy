@@ -12,9 +12,11 @@ import (
 	"time"
 
 	"braces.dev/errtrace"
+	"github.com/google/uuid"
 )
 
 type Server struct {
+	Id          string
 	Host        string
 	Port        int
 	Auth        *common.ProxyAuth
@@ -53,6 +55,7 @@ type ConnectFunc func(string) (net.Conn, error)
 
 func NewServer(host string, port int, auth *common.ProxyAuth) *Server {
 	return &Server{
+		uuid.NewString(),
 		host,
 		port,
 		auth,
@@ -78,7 +81,7 @@ func NewServer(host string, port int, auth *common.ProxyAuth) *Server {
 }
 
 func (s *Server) String() string {
-	return fmt.Sprintf("%s:%d", s.Host, s.Port)
+	return fmt.Sprintf("%s:%d - %s", s.Host, s.Port, s.Id)
 }
 
 func (s *Server) Printlnf(f string, a ...any) {

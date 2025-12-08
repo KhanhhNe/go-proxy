@@ -9,12 +9,19 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 // @ts-ignore: Unused imports
 import * as $models from "./models.js";
 
+export function GetAppState(): $CancellablePromise<$models.AppState> {
+    return $Call.ByName("main.MyService.GetAppState").then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
 export function GetManager(): $CancellablePromise<$models.listenerServerManager | null> {
     return $Call.ByName("main.MyService.GetManager").then(($result: any) => {
-        return $$createType1($result);
+        return $$createType2($result);
     });
 }
 
 // Private type creation functions
-const $$createType0 = $models.listenerServerManager.createFrom;
-const $$createType1 = $Create.Nullable($$createType0);
+const $$createType0 = $models.AppState.createFrom;
+const $$createType1 = $models.listenerServerManager.createFrom;
+const $$createType2 = $Create.Nullable($$createType1);

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-proxy/common"
 	"go-proxy/proxyserver"
+	"net"
 	"sync"
 	"time"
 
@@ -78,4 +79,35 @@ func (s *MyService) ServiceStartup(ctx context.Context, options application.Serv
 
 func (s *MyService) GetManager() *listenerServerManager {
 	return ListenerServerManager
+}
+
+type AppState struct {
+	LocalIp string
+}
+
+func (s *MyService) GetAppState() (state AppState) {
+	wg := sync.WaitGroup{}
+	mu := sync.Mutex{}
+
+	wg.Go(func() {
+		mu.Lock()
+		state.LocalIp = GetLocalIp()
+		mu.Unlock()
+	})
+
+	wg.Wait()
+
+	return
+}
+
+func GetLocalIp() string {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		return ""
+	}
+	defer conn.Close()
+
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+
+	return localAddr.IP.String()
 }

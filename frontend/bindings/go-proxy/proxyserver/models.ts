@@ -16,6 +16,7 @@ import * as sync$0 from "../../sync/models.js";
 import * as time$0 from "../../time/models.js";
 
 export class Server {
+    "Id": string;
     "Host": string;
     "Port": number;
     "Auth": common$0.ProxyAuth | null;
@@ -28,6 +29,9 @@ export class Server {
 
     /** Creates a new Server instance. */
     constructor($$source: Partial<Server> = {}) {
+        if (!("Id" in $$source)) {
+            this["Id"] = "";
+        }
         if (!("Host" in $$source)) {
             this["Host"] = "";
         }
@@ -63,18 +67,18 @@ export class Server {
      * Creates a new Server instance from a string or object.
      */
     static createFrom($$source: any = {}): Server {
-        const $$createField2_0 = $$createType1;
-        const $$createField7_0 = $$createType2;
-        const $$createField8_0 = $$createType3;
+        const $$createField3_0 = $$createType1;
+        const $$createField8_0 = $$createType2;
+        const $$createField9_0 = $$createType3;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("Auth" in $$parsedSource) {
-            $$parsedSource["Auth"] = $$createField2_0($$parsedSource["Auth"]);
+            $$parsedSource["Auth"] = $$createField3_0($$parsedSource["Auth"]);
         }
         if ("Protocols" in $$parsedSource) {
-            $$parsedSource["Protocols"] = $$createField7_0($$parsedSource["Protocols"]);
+            $$parsedSource["Protocols"] = $$createField8_0($$parsedSource["Protocols"]);
         }
         if ("Mu" in $$parsedSource) {
-            $$parsedSource["Mu"] = $$createField8_0($$parsedSource["Mu"]);
+            $$parsedSource["Mu"] = $$createField9_0($$parsedSource["Mu"]);
         }
         return new Server($$parsedSource as Partial<Server>);
     }

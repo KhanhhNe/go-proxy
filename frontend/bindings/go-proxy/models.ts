@@ -21,6 +21,27 @@ import * as sync$0 from "../sync/models.js";
 // @ts-ignore: Unused imports
 import * as time$0 from "../time/models.js";
 
+export class AppState {
+    "LocalIp": string;
+
+    /** Creates a new AppState instance. */
+    constructor($$source: Partial<AppState> = {}) {
+        if (!("LocalIp" in $$source)) {
+            this["LocalIp"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AppState instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AppState {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new AppState($$parsedSource as Partial<AppState>);
+    }
+}
+
 export class ListenerStat {
     "Sent": number;
     "Received": number;
@@ -159,12 +180,16 @@ export class ManagedProxyServer {
 
 export class ServerFilter {
     "Tags": string[];
+    "ServerIds": { [_: string]: boolean };
     "IgnoreAll": boolean;
 
     /** Creates a new ServerFilter instance. */
     constructor($$source: Partial<ServerFilter> = {}) {
         if (!("Tags" in $$source)) {
             this["Tags"] = [];
+        }
+        if (!("ServerIds" in $$source)) {
+            this["ServerIds"] = {};
         }
         if (!("IgnoreAll" in $$source)) {
             this["IgnoreAll"] = false;
@@ -178,9 +203,13 @@ export class ServerFilter {
      */
     static createFrom($$source: any = {}): ServerFilter {
         const $$createField0_0 = $$createType9;
+        const $$createField1_0 = $$createType8;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("Tags" in $$parsedSource) {
             $$parsedSource["Tags"] = $$createField0_0($$parsedSource["Tags"]);
+        }
+        if ("ServerIds" in $$parsedSource) {
+            $$parsedSource["ServerIds"] = $$createField1_0($$parsedSource["ServerIds"]);
         }
         return new ServerFilter($$parsedSource as Partial<ServerFilter>);
     }

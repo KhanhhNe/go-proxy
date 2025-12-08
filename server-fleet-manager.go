@@ -7,6 +7,7 @@ import (
 	"go-proxy/threadpool"
 	"iter"
 	"maps"
+	"net"
 	"net/netip"
 	"sync"
 	"time"
@@ -39,6 +40,7 @@ type listenerServerManager struct {
 
 type ServerFilter struct {
 	Tags      []string
+	ServerIds map[string]bool
 	IgnoreAll bool
 }
 
@@ -77,7 +79,7 @@ func (s *ManagedProxyServer) HasAllTags(tags []string) bool {
 	return true
 }
 
-func (m *listenerServerManager) AddServers(servers []*proxyserver.Server) {
+func (m *listenerServerManager) AddServers(servers []*proxyserver.Server) error {
 	for _, s := range servers {
 		managedServer := &ManagedProxyServer{
 			s,
@@ -86,7 +88,16 @@ func (m *listenerServerManager) AddServers(servers []*proxyserver.Server) {
 		m.Servers[s.String()] = managedServer
 
 		managedServer.checkServer()
+
+		localPort, err := getFreePort()
+		if err != nil {
+			return errtrace.Wrap(err)
+		}
+		listener := NewLocalListener(localPort, nil, ServerFilter{ServerIds: map[string]bool{s.Id: true}})
+		m.AddListeners([]*LocalListener{listener})
 	}
+
+	return nil
 }
 
 func (m *listenerServerManager) GetServer(filter ServerFilter) (*ManagedProxyServer, error) {
@@ -109,6 +120,12 @@ func (m *listenerServerManager) GetServer(filter ServerFilter) (*ManagedProxySer
 
 		if !s.HasAllTags(filter.Tags) {
 			continue
+		}
+
+		if len(filter.ServerIds) > 0 {
+			if _, idAllowed := filter.ServerIds[s.Server.Id]; !idAllowed {
+				continue
+			}
 		}
 
 		return s, nil
@@ -163,6 +180,20 @@ func (m *listenerServerManager) autoRecheckServers() {
 			s.checkServer()
 		}
 	}
+}
+
+func getFreePort() (port int, err error) {
+	var a *net.TCPAddr
+	if a, err = net.ResolveTCPAddr("tcp", "localhost:0"); err == nil {
+		var l *net.TCPListener
+		if l, err = net.ListenTCP("tcp", a); err == nil {
+			port = l.Addr().(*net.TCPAddr).Port
+			l.Close()
+		}
+	}
+
+	err = errtrace.Wrap(err)
+	return
 }
 
 type CheckServerThread struct {

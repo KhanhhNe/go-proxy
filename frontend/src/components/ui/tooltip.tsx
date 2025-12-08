@@ -83,6 +83,7 @@ const CopyTooltip = ({
       <TooltipTrigger
         ref={ref}
         onClick={handleClick}
+        asChild
         {...triggerProps}
         className={cn("hover:cursor-pointer", triggerProps?.className)}
       >

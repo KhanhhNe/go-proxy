@@ -7,6 +7,7 @@ export {
 };
 
 export {
+    AppState,
     ListenerStat,
     LocalListener,
     ManagedLocalListener,

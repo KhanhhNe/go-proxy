@@ -1,4 +1,4 @@
-import { listenerServerManager } from "@bindings/go-proxy/models";
+import { AppState, listenerServerManager } from "@bindings/go-proxy/models";
 import type {} from "@redux-devtools/extension"; // Required for zustand IDE typing
 import { createWithEqualityFn as create } from "zustand/traditional";
 import { equalJson } from "./lib/utils";
@@ -27,3 +27,27 @@ export const useManagerStore = create<{
   }),
   equalJson,
 );
+
+export const useAppStateStore = create<{
+  state: AppState | null;
+  setState: (s: AppState) => void;
+}>(
+  (set) => ({
+    state: null,
+    setState: (state: AppState) => set({ state }),
+  }),
+  equalJson,
+);
+
+/**
+ * @deprecated This hook only exists for initial release
+ */
+export const useMatchingListener = (serverId: string) => {
+  const manager = useManagerStore((s) => s.manager);
+
+  for (const listener of Object.values(manager?.Listeners ?? {})) {
+    if (serverId in (listener?.Listener?.Filter.ServerIds ?? {})) {
+      return listener;
+    }
+  }
+};

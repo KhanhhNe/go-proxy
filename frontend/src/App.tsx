@@ -1,23 +1,27 @@
-import { GetManager } from "@bindings/go-proxy/myservice";
+import { GetAppState, GetManager } from "@bindings/go-proxy/myservice";
 import { useEffect } from "react";
 import { AppSidebar } from "./components/app-sidebar";
 import { SidebarProvider } from "./components/ui/sidebar";
 import { PageIndex } from "./pages";
 import { PageServers } from "./pages/servers";
-import { PAGES, useManagerStore, usePageStore } from "./state";
+import {
+  PAGES,
+  useAppStateStore,
+  useManagerStore,
+  usePageStore,
+} from "./state";
 
 function App() {
   const page = usePageStore((state) => state.page);
   const setManager = useManagerStore((state) => state.setManager);
+  const setAppState = useAppStateStore((state) => state.setState);
 
   useEffect(() => {
-    function fetchManager() {
-      GetManager().then((m) => (m ? setManager(m) : null));
-
-      setTimeout(fetchManager, 1000);
-    }
-
-    fetchManager();
+    setInterval(
+      () => GetManager().then((m) => (m ? setManager(m) : null)),
+      1000,
+    );
+    setInterval(() => GetAppState().then((s) => setAppState(s)), 1000);
   }, []);
 
   return (
