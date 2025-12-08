@@ -173,7 +173,7 @@ func (m *listenerServerManager) autoRecheckServers() {
 		since := time.Now().Add(-m.ServerRecheckInterval)
 
 		for _, s := range m.Servers {
-			if s.Server.LastChecked != nil && s.Server.LastChecked.After(since) {
+			if s.Server.LastChecked.After(since) {
 				continue
 			}
 

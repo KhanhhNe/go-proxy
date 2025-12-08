@@ -9,14 +9,14 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { PAGES, usePageStore } from "@/state";
-import { Globe, Home } from "lucide-react";
+import { Globe } from "lucide-react";
 
 const items = [
-  {
-    page: PAGES.index,
-    icon: Home,
-    name: "Trang chủ",
-  },
+  // {
+  //   page: PAGES.index,
+  //   icon: Home,
+  //   name: "Trang chủ",
+  // },
   {
     page: PAGES.servers,
     icon: Globe,

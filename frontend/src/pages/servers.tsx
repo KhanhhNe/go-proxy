@@ -133,7 +133,7 @@ export function PageServers() {
                   "bg-yellow-400",
               )}
             >
-              {text}
+              {text.replaceAll("trước", "")}
             </span>
           );
         },
@@ -162,7 +162,7 @@ export function PageServers() {
               <CopyTooltip copyData={[getServerString(row.original.Server)]}>
                 <Button size="icon" variant="outline">
                   <div className="flex flex-col items-center">
-                    <span className="text-xs">Proxy</span>
+                    <span className="text-xs">Gốc</span>
                     <Clipboard />
                   </div>
                 </Button>

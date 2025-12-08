@@ -23,7 +23,7 @@ export class Server {
     "Timeout": time$0.Duration;
     "PublicIp": string;
     "Latency": time$0.Duration;
-    "LastChecked": time$0.Time | null;
+    "LastChecked": time$0.Time;
     "Protocols": { [_: string]: boolean };
     "Mu": sync$0.Mutex;
 

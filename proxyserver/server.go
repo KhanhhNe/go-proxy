@@ -23,7 +23,7 @@ type Server struct {
 	Timeout     time.Duration
 	PublicIp    string
 	Latency     time.Duration
-	LastChecked *time.Time
+	LastChecked time.Time
 
 	Protocols map[string]bool
 	Mu        sync.Mutex
@@ -62,7 +62,7 @@ func NewServer(host string, port int, auth *common.ProxyAuth) *Server {
 		30 * time.Second,
 		"",
 		0,
-		nil,
+		time.Time{},
 		map[string]bool{
 			PROTO_Ssh:    false,
 			PROTO_Socks5: false,
@@ -112,6 +112,7 @@ func (s *Server) CheckServer() {
 	var wg sync.WaitGroup
 
 	start := time.Now()
+	isAlive := false
 
 	for proto := range s.Protocols {
 		if proto == PROTO_Direct {
@@ -129,6 +130,7 @@ func (s *Server) CheckServer() {
 			s.Protocols[p] = alive
 			if alive {
 				s.PublicIp = copy.PublicIp
+				isAlive = true
 			}
 			s.Mu.Unlock()
 			wg.Done()
@@ -139,12 +141,12 @@ func (s *Server) CheckServer() {
 
 	s.Mu.Lock()
 
-	if s.LastChecked == nil {
-		s.LastChecked = new(time.Time)
+	if isAlive {
+		s.Latency = time.Since(start)
+	} else {
+		s.Latency = 0
 	}
-
-	s.Latency = time.Since(start)
-	*s.LastChecked = time.Now()
+	s.LastChecked = time.Now()
 
 	s.Mu.Unlock()
 
