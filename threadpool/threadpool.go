@@ -58,11 +58,13 @@ func NewThreadPool[T Thread](size int) *Pool[T] {
 }
 
 func (p *Pool[T]) AddTask(t T) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
 	if _, already := p.taskIds[t.Id()]; already {
 		return
 	}
 
-	p.mu.Lock()
 	p.taskIds[t.Id()] = true
 	p.tasksQueue.Push(t)
 
@@ -71,8 +73,6 @@ func (p *Pool[T]) AddTask(t T) {
 	case p.newTasks <- true:
 	default:
 	}
-
-	p.mu.Unlock()
 }
 
 func (p *Pool[T]) Scale(size int) {
