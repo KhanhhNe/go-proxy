@@ -18,11 +18,12 @@ import (
 )
 
 type LocalListener struct {
-	Port     int
-	Listener net.Listener
-	Auth     *common.ProxyAuth
-	Filter   ServerFilter
-	Stat     ListenerStat
+	IsServing bool
+	Port      int
+	Listener  net.Listener
+	Auth      *common.ProxyAuth
+	Filter    ServerFilter
+	Stat      ListenerStat
 }
 
 type ListenerStat struct {
@@ -39,26 +40,32 @@ type IncomingConnection struct {
 
 func (c *IncomingConnection) Write(b []byte) (int, error) {
 	n, err := c.TCPConn.Write(b)
-	c.Listener.Stat.Sent += uint64(n)
+	c.Listener.RecordStat(n, 0)
 	return n, err
 }
 
 func (c *IncomingConnection) Read(b []byte) (int, error) {
 	n, err := c.TCPConn.Read(b)
-	c.Listener.Stat.Received += uint64(n)
+	c.Listener.RecordStat(0, n)
 	return n, err
 }
 
 type DoneCallback func(err error)
 
-func NewLocalListener(port int, auth *common.ProxyAuth, filter ServerFilter) *LocalListener {
+func NewLocalListener(port int, auth *common.ProxyAuth, filter ServerFilter) (*LocalListener, error) {
+	listener, err := net.Listen("tcp", net.JoinHostPort("0.0.0.0", strconv.Itoa(port)))
+	if err != nil {
+		return nil, errtrace.Wrap(err)
+	}
+
 	return &LocalListener{
-		port,
-		nil,
+		false,
+		listener.Addr().(*net.TCPAddr).Port,
+		listener,
 		auth,
 		filter,
 		ListenerStat{},
-	}
+	}, nil
 }
 
 func (l *LocalListener) Printlnf(f string, a ...any) {
@@ -66,44 +73,21 @@ func (l *LocalListener) Printlnf(f string, a ...any) {
 	fmt.Printf(f, a...)
 }
 
-func FindTcpProcess(addr string) (*process.Process, error) {
-	_, port, err := net.SplitHostPort(addr)
-	if err != nil {
-		return nil, errtrace.Wrap(err)
-	}
-
-	conns, err := psutilnet.Connections("tcp")
-	if err != nil {
-		return nil, errtrace.Wrap(err)
-	}
-
-	portInt, err := strconv.Atoi(port)
-	if err != nil {
-		return nil, errtrace.Wrap(err)
-	}
-
-	var pid int32
-	for _, conn := range conns {
-		if int(conn.Laddr.Port) == portInt {
-			pid = conn.Pid
-		}
-	}
-	if pid == 0 {
-		return nil, nil
-	}
-
-	proc, err := process.NewProcess(pid)
-	return proc, errtrace.Wrap(err)
+func (l *LocalListener) RecordStat(sent int, received int) {
+	common.DataMutex.Lock()
+	l.Stat.Sent += uint64(sent)
+	l.Stat.Received += uint64(received)
+	common.DataMutex.Unlock()
 }
 
 func (l *LocalListener) Serve(ctx context.Context, cb DoneCallback) {
-	config := net.ListenConfig{}
-	listener, err := config.Listen(ctx, "tcp", net.JoinHostPort("0.0.0.0", strconv.Itoa(l.Port)))
-	if err != nil {
-		cb(errtrace.Wrap(err))
+	if l.IsServing {
 		return
 	}
-	l.Listener = listener
+
+	common.DataMutex.Lock()
+	l.IsServing = true
+	common.DataMutex.Unlock()
 
 	l.Printlnf("Listening at %d", l.Port)
 
@@ -120,7 +104,7 @@ func (l *LocalListener) Serve(ctx context.Context, cb DoneCallback) {
 			defer netConn.Close()
 
 			addr := netConn.RemoteAddr().String()
-			proc, err := FindTcpProcess(addr)
+			proc, err := findTcpProcess(addr)
 
 			if err != nil || proc == nil {
 				l.Printlnf("Cannot find associated TCP socks for port %s", addr)
@@ -151,10 +135,10 @@ func (l *LocalListener) Serve(ctx context.Context, cb DoneCallback) {
 
 			switch version[0] {
 			case socks5.VER_SOCKS5:
-				err = l.HandleSocks5(conn, reader, writer)
+				err = l.handleSocks5(conn, reader, writer)
 			default:
 				// If not recognized, it could be HTTP request
-				err = l.HandleHttp(conn, reader, writer)
+				err = l.handleHttp(conn, reader, writer)
 			}
 
 			if err != nil {
@@ -164,7 +148,37 @@ func (l *LocalListener) Serve(ctx context.Context, cb DoneCallback) {
 	}
 }
 
-func (l *LocalListener) HandleHttp(conn *IncomingConnection, reader *bufio.Reader, writer *bufio.Writer) error {
+func findTcpProcess(addr string) (*process.Process, error) {
+	_, port, err := net.SplitHostPort(addr)
+	if err != nil {
+		return nil, errtrace.Wrap(err)
+	}
+
+	conns, err := psutilnet.Connections("tcp")
+	if err != nil {
+		return nil, errtrace.Wrap(err)
+	}
+
+	portInt, err := strconv.Atoi(port)
+	if err != nil {
+		return nil, errtrace.Wrap(err)
+	}
+
+	var pid int32
+	for _, conn := range conns {
+		if int(conn.Laddr.Port) == portInt {
+			pid = conn.Pid
+		}
+	}
+	if pid == 0 {
+		return nil, nil
+	}
+
+	proc, err := process.NewProcess(pid)
+	return proc, errtrace.Wrap(err)
+}
+
+func (l *LocalListener) handleHttp(conn *IncomingConnection, reader *bufio.Reader, writer *bufio.Writer) error {
 	req, err := http.ReadRequest(reader)
 	if err != nil {
 		return errtrace.Wrap(err)
@@ -266,7 +280,7 @@ func (l *LocalListener) HandleHttp(conn *IncomingConnection, reader *bufio.Reade
 	return nil
 }
 
-func (l *LocalListener) HandleSocks5(conn *IncomingConnection, reader *bufio.Reader, writer *bufio.Writer) error {
+func (l *LocalListener) handleSocks5(conn *IncomingConnection, reader *bufio.Reader, writer *bufio.Writer) error {
 	msg, err := socks5.Read_ClientConnect(reader)
 	if err != nil {
 		return errtrace.Wrap(err)

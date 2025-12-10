@@ -6,6 +6,7 @@ import (
 	"go-proxy/binary"
 	"net/netip"
 	"strings"
+	"sync"
 	"time"
 
 	"braces.dev/errtrace"
@@ -92,3 +93,5 @@ func GetIpCountry(ip netip.Addr) (string, error) {
 
 	return code, nil
 }
+
+var DataMutex sync.RWMutex

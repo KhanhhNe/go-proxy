@@ -26,10 +26,7 @@ func main() {
 
 	err := app.Run()
 	if err != nil {
-		panic(err)
-	}
-
-	if err != nil {
 		println("Error:", err.Error())
+		panic(err)
 	}
 }

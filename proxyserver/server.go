@@ -26,7 +26,6 @@ type Server struct {
 	LastChecked time.Time
 
 	Protocols map[string]bool
-	Mu        sync.Mutex
 
 	// Protocol-specific state
 	sshState    *ServerSshState
@@ -69,7 +68,6 @@ func NewServer(host string, port int, auth *common.ProxyAuth) *Server {
 			PROTO_Http:   false,
 			PROTO_Direct: false,
 		},
-		sync.Mutex{},
 
 		&ServerSshState{},
 		&ServerHttpState{},
@@ -89,7 +87,7 @@ func (s *Server) Printlnf(f string, a ...any) {
 		return
 	}
 
-	f = fmt.Sprintf("[ProxyServer %s] ", s.String()) + f + "\n"
+	f = fmt.Sprintf("[ProxyServer %s:%d] ", s.Host, s.Port) + f + "\n"
 	fmt.Printf(f, a...)
 }
 
@@ -126,20 +124,24 @@ func (s *Server) CheckServer() {
 		wg.Add(1)
 		go func(p string, c *Server) {
 			alive := c.CheckAlive()
-			s.Mu.Lock()
+
+			common.DataMutex.Lock()
+
 			s.Protocols[p] = alive
 			if alive {
 				s.PublicIp = copy.PublicIp
 				isAlive = true
 			}
-			s.Mu.Unlock()
+
+			common.DataMutex.Unlock()
+
 			wg.Done()
 		}(proto, copy)
 	}
 
 	wg.Wait()
 
-	s.Mu.Lock()
+	common.DataMutex.Lock()
 
 	if isAlive {
 		s.Latency = time.Since(start)
@@ -148,14 +150,16 @@ func (s *Server) CheckServer() {
 	}
 	s.LastChecked = time.Now()
 
-	s.Mu.Unlock()
+	common.DataMutex.Unlock()
 
+	common.DataMutex.RLock()
 	protos := ""
 	for proto, supported := range s.Protocols {
 		if supported {
 			protos += "," + proto
 		}
 	}
+	common.DataMutex.RUnlock()
 	s.Printlnf("Supported protocols: %s", strings.TrimLeft(protos, ","))
 }
 
@@ -196,9 +200,9 @@ func (s *Server) CheckAlive() bool {
 		return false
 	}
 
-	s.Mu.Lock()
+	common.DataMutex.Lock()
 	s.PublicIp = string(body)
-	s.Mu.Unlock()
+	common.DataMutex.Unlock()
 
 	return true
 }

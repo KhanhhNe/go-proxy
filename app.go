@@ -21,29 +21,28 @@ func NewMyService(app *application.App) *MyService {
 }
 
 func (s *MyService) ServiceStartup(ctx context.Context, options application.ServiceOptions) error {
-	ListenerServerManager.AddListeners([]*LocalListener{
-		NewLocalListener(8000, &common.ProxyAuth{
-			Username: "khanh",
-			Password: "khanh",
-		}, ServerFilter{Tags: []string{"ssh"}}),
-		NewLocalListener(8001, &common.ProxyAuth{
-			Username: "khanh",
-			Password: "khanh",
-		}, ServerFilter{Tags: []string{"http"}}),
-		NewLocalListener(8002, &common.ProxyAuth{
-			Username: "khanh",
-			Password: "khanh",
-		}, ServerFilter{Tags: []string{"socks5"}}),
+	l1, _ := NewLocalListener(8000, &common.ProxyAuth{
+		Username: "khanh",
+		Password: "khanh",
+	}, ServerFilter{Tags: []string{"ssh"}})
+	l2, _ := NewLocalListener(8001, &common.ProxyAuth{
+		Username: "khanh",
+		Password: "khanh",
+	}, ServerFilter{Tags: []string{"http"}})
+	l3, _ := NewLocalListener(8002, &common.ProxyAuth{
+		Username: "khanh",
+		Password: "khanh",
+	}, ServerFilter{Tags: []string{"socks5"}})
+	l4, _ := NewLocalListener(9001, &common.ProxyAuth{
+		Username: "khanh",
+		Password: "khanh",
+	}, ServerFilter{IgnoreAll: true})
+	l5, _ := NewLocalListener(9002, &common.ProxyAuth{
+		Username: "khanh",
+		Password: "khanh",
+	}, ServerFilter{IgnoreAll: true})
 
-		NewLocalListener(9001, &common.ProxyAuth{
-			Username: "khanh",
-			Password: "khanh",
-		}, ServerFilter{IgnoreAll: true}),
-		NewLocalListener(9002, &common.ProxyAuth{
-			Username: "khanh",
-			Password: "khanh",
-		}, ServerFilter{IgnoreAll: true}),
-	})
+	ListenerServerManager.AddListeners([]*LocalListener{l1, l2, l3, l4, l5})
 
 	var wg sync.WaitGroup
 	wg.Go(func() {
@@ -78,6 +77,8 @@ func (s *MyService) ServiceStartup(ctx context.Context, options application.Serv
 }
 
 func (s *MyService) GetManager() *listenerServerManager {
+	// common.DataMutex.RLock()
+	// defer common.DataMutex.RUnlock()
 	return ListenerServerManager
 }
 
@@ -91,7 +92,7 @@ func (s *MyService) GetAppState() (state AppState) {
 
 	wg.Go(func() {
 		mu.Lock()
-		state.LocalIp = GetLocalIp()
+		state.LocalIp = getLocalIp()
 		mu.Unlock()
 	})
 
@@ -100,7 +101,7 @@ func (s *MyService) GetAppState() (state AppState) {
 	return
 }
 
-func GetLocalIp() string {
+func getLocalIp() string {
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
 		return ""

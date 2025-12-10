@@ -68,6 +68,7 @@ export class ListenerStat {
 }
 
 export class LocalListener {
+    "IsServing": boolean;
     "Port": number;
     "Listener": net$0.Listener;
     "Auth": common$0.ProxyAuth | null;
@@ -76,6 +77,9 @@ export class LocalListener {
 
     /** Creates a new LocalListener instance. */
     constructor($$source: Partial<LocalListener> = {}) {
+        if (!("IsServing" in $$source)) {
+            this["IsServing"] = false;
+        }
         if (!("Port" in $$source)) {
             this["Port"] = 0;
         }
@@ -99,18 +103,18 @@ export class LocalListener {
      * Creates a new LocalListener instance from a string or object.
      */
     static createFrom($$source: any = {}): LocalListener {
-        const $$createField2_0 = $$createType1;
-        const $$createField3_0 = $$createType2;
-        const $$createField4_0 = $$createType3;
+        const $$createField3_0 = $$createType1;
+        const $$createField4_0 = $$createType2;
+        const $$createField5_0 = $$createType3;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("Auth" in $$parsedSource) {
-            $$parsedSource["Auth"] = $$createField2_0($$parsedSource["Auth"]);
+            $$parsedSource["Auth"] = $$createField3_0($$parsedSource["Auth"]);
         }
         if ("Filter" in $$parsedSource) {
-            $$parsedSource["Filter"] = $$createField3_0($$parsedSource["Filter"]);
+            $$parsedSource["Filter"] = $$createField4_0($$parsedSource["Filter"]);
         }
         if ("Stat" in $$parsedSource) {
-            $$parsedSource["Stat"] = $$createField4_0($$parsedSource["Stat"]);
+            $$parsedSource["Stat"] = $$createField5_0($$parsedSource["Stat"]);
         }
         return new LocalListener($$parsedSource as Partial<LocalListener>);
     }
@@ -118,15 +122,11 @@ export class LocalListener {
 
 export class ManagedLocalListener {
     "Listener": LocalListener | null;
-    "IsServing": boolean;
 
     /** Creates a new ManagedLocalListener instance. */
     constructor($$source: Partial<ManagedLocalListener> = {}) {
         if (!("Listener" in $$source)) {
             this["Listener"] = null;
-        }
-        if (!("IsServing" in $$source)) {
-            this["IsServing"] = false;
         }
 
         Object.assign(this, $$source);

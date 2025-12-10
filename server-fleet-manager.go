@@ -7,7 +7,6 @@ import (
 	"go-proxy/threadpool"
 	"iter"
 	"maps"
-	"net"
 	"net/netip"
 	"sync"
 	"time"
@@ -18,9 +17,8 @@ import (
 type ManagedLocalListener struct {
 	Listener *LocalListener
 
-	ctx       context.Context
-	cancel    context.CancelFunc
-	IsServing bool
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
 type ManagedProxyServer struct {
@@ -63,12 +61,18 @@ func NewListenerServerManager() (s *listenerServerManager) {
 }
 
 func (s *ManagedProxyServer) AddTags(tags ...string) {
+	common.DataMutex.Lock()
+	defer common.DataMutex.Unlock()
+
 	for _, t := range tags {
 		s.Tags[t] = true
 	}
 }
 
 func (s *ManagedProxyServer) HasAllTags(tags []string) bool {
+	common.DataMutex.RLock()
+	defer common.DataMutex.RUnlock()
+
 	for _, t := range tags {
 		hasTag, ok := s.Tags[t]
 		if !ok || !hasTag {
@@ -85,15 +89,17 @@ func (m *listenerServerManager) AddServers(servers []*proxyserver.Server) error 
 			s,
 			map[string]bool{},
 		}
+
+		common.DataMutex.Lock()
 		m.Servers[s.String()] = managedServer
+		common.DataMutex.Unlock()
 
 		managedServer.checkServer()
 
-		localPort, err := getFreePort()
+		listener, err := NewLocalListener(0, nil, ServerFilter{ServerIds: map[string]bool{s.Id: true}})
 		if err != nil {
 			return errtrace.Wrap(err)
 		}
-		listener := NewLocalListener(localPort, nil, ServerFilter{ServerIds: map[string]bool{s.Id: true}})
 		m.AddListeners([]*LocalListener{listener})
 	}
 
@@ -101,6 +107,9 @@ func (m *listenerServerManager) AddServers(servers []*proxyserver.Server) error 
 }
 
 func (m *listenerServerManager) GetServer(filter ServerFilter) (*ManagedProxyServer, error) {
+	common.DataMutex.RLock()
+	defer common.DataMutex.RUnlock()
+
 	if filter.IgnoreAll {
 		return DirectProxy, nil
 	}
@@ -135,6 +144,8 @@ func (m *listenerServerManager) GetServer(filter ServerFilter) (*ManagedProxySer
 }
 
 func (m *listenerServerManager) AddListeners(listeners []*LocalListener) {
+	common.DataMutex.Lock()
+
 	for _, l := range listeners {
 		ctx, cancel := context.WithCancel(context.Background())
 
@@ -142,9 +153,10 @@ func (m *listenerServerManager) AddListeners(listeners []*LocalListener) {
 			l,
 			ctx,
 			cancel,
-			false,
 		}
 	}
+
+	common.DataMutex.Unlock()
 
 	if m.IsServing {
 		m.serveInactiveListeners()
@@ -152,8 +164,11 @@ func (m *listenerServerManager) AddListeners(listeners []*LocalListener) {
 }
 
 func (m *listenerServerManager) serveInactiveListeners() {
+	common.DataMutex.RLock()
+	defer common.DataMutex.RUnlock()
+
 	for _, l := range m.Listeners {
-		if l.IsServing {
+		if l.Listener.IsServing {
 			continue
 		}
 
@@ -172,6 +187,8 @@ func (m *listenerServerManager) autoRecheckServers() {
 		<-time.After(time.Second)
 		since := time.Now().Add(-m.ServerRecheckInterval)
 
+		common.DataMutex.RLock()
+
 		for _, s := range m.Servers {
 			if s.Server.LastChecked.After(since) {
 				continue
@@ -179,21 +196,9 @@ func (m *listenerServerManager) autoRecheckServers() {
 
 			s.checkServer()
 		}
-	}
-}
 
-func getFreePort() (port int, err error) {
-	var a *net.TCPAddr
-	if a, err = net.ResolveTCPAddr("tcp", "localhost:0"); err == nil {
-		var l *net.TCPListener
-		if l, err = net.ListenTCP("tcp", a); err == nil {
-			port = l.Addr().(*net.TCPAddr).Port
-			l.Close()
-		}
+		common.DataMutex.RUnlock()
 	}
-
-	err = errtrace.Wrap(err)
-	return
 }
 
 type CheckServerThread struct {
@@ -208,14 +213,20 @@ func (t *CheckServerThread) Run() {
 	s := t.server
 
 	s.Server.CheckServer()
-	for proto, supported := range s.Server.Protocols {
+
+	common.DataMutex.RLock()
+	protos := s.Server.Protocols
+	publicIp := s.Server.PublicIp
+	common.DataMutex.RUnlock()
+
+	for proto, supported := range protos {
 		if supported {
 			s.AddTags(proto)
 		}
 	}
 
-	if s.Server.PublicIp != "" {
-		ip, err := netip.ParseAddr(s.Server.PublicIp)
+	if publicIp != "" {
+		ip, err := netip.ParseAddr(publicIp)
 		if err != nil {
 			return
 		}
@@ -237,7 +248,10 @@ func (s *ManagedProxyServer) checkServer() {
 }
 
 func (m *listenerServerManager) Serve() {
+	common.DataMutex.Lock()
 	m.IsServing = true
+	common.DataMutex.Unlock()
+
 	m.serveInactiveListeners()
 	m.Wg.Go(m.autoRecheckServers)
 	m.Wg.Wait()

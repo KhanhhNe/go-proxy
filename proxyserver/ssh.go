@@ -2,6 +2,7 @@ package proxyserver
 
 import (
 	"errors"
+	"go-proxy/common"
 	"io"
 	"net"
 	"strconv"
@@ -31,7 +32,10 @@ func (s *Server) prepareSsh() error {
 	}
 	s.Printlnf("Connection succeeded")
 
+	common.DataMutex.Lock()
 	s.sshState.client = c
+	common.DataMutex.Unlock()
+
 	return nil
 }
 

@@ -10,9 +10,6 @@ import { Create as $Create } from "@wailsio/runtime";
 import * as common$0 from "../common/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
-import * as sync$0 from "../../sync/models.js";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore: Unused imports
 import * as time$0 from "../../time/models.js";
 
 export class Server {
@@ -25,7 +22,6 @@ export class Server {
     "Latency": time$0.Duration;
     "LastChecked": time$0.Time;
     "Protocols": { [_: string]: boolean };
-    "Mu": sync$0.Mutex;
 
     /** Creates a new Server instance. */
     constructor($$source: Partial<Server> = {}) {
@@ -56,9 +52,6 @@ export class Server {
         if (!("Protocols" in $$source)) {
             this["Protocols"] = {};
         }
-        if (!("Mu" in $$source)) {
-            this["Mu"] = (new sync$0.Mutex());
-        }
 
         Object.assign(this, $$source);
     }
@@ -69,16 +62,12 @@ export class Server {
     static createFrom($$source: any = {}): Server {
         const $$createField3_0 = $$createType1;
         const $$createField8_0 = $$createType2;
-        const $$createField9_0 = $$createType3;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("Auth" in $$parsedSource) {
             $$parsedSource["Auth"] = $$createField3_0($$parsedSource["Auth"]);
         }
         if ("Protocols" in $$parsedSource) {
             $$parsedSource["Protocols"] = $$createField8_0($$parsedSource["Protocols"]);
-        }
-        if ("Mu" in $$parsedSource) {
-            $$parsedSource["Mu"] = $$createField9_0($$parsedSource["Mu"]);
         }
         return new Server($$parsedSource as Partial<Server>);
     }
@@ -88,4 +77,3 @@ export class Server {
 const $$createType0 = common$0.ProxyAuth.createFrom;
 const $$createType1 = $Create.Nullable($$createType0);
 const $$createType2 = $Create.Map($Create.Any, $Create.Any);
-const $$createType3 = sync$0.Mutex.createFrom;
