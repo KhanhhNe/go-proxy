@@ -39,15 +39,17 @@ function Badge({ className, variant, ...props }: BadgeProps) {
 function Tag({ className, text }: { className?: string; text: string }) {
   const country = countries.find((c) => c.code === text.toUpperCase());
 
+  const badge = (
+    <Badge className={className}>
+      {country && <div className={`flag:${text} mr-1 rounded-[.15rem]`}></div>}
+      {text}
+    </Badge>
+  );
+
   return (
     <Tooltip>
       <TooltipTrigger>
-        <Badge className={className}>
-          {country && (
-            <div className={`flag:${text} mr-1 rounded-[.15rem]`}></div>
-          )}
-          {text}
-        </Badge>
+        {country ? <div className="w-[10ch]">{badge}</div> : badge}
       </TooltipTrigger>
       {country && (
         <TooltipContent>

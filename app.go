@@ -104,7 +104,7 @@ func (s *MyService) GetAppState() (state AppState) {
 func getLocalIp() string {
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
-		return ""
+		return "localhost"
 	}
 	defer conn.Close()
 

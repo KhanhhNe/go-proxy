@@ -1,5 +1,11 @@
 import { Tag } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { DataTable, useTable } from "@/components/ui/table";
 import { CopyableSpan, CopyTooltip } from "@/components/ui/tooltip";
 import {
@@ -20,7 +26,13 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
 } from "@tanstack/react-table";
-import { Clipboard } from "lucide-react";
+import {
+  ClipboardIcon,
+  DownloadIcon,
+  PlusIcon,
+  TrashIcon,
+  XIcon,
+} from "lucide-react";
 import { DateTime, Duration } from "luxon";
 import { useMemo, useState } from "react";
 
@@ -34,6 +46,7 @@ export function PageServers() {
   const localIp = useAppStateStore((s) => s.state?.LocalIp);
 
   const [rowSelection, setRowSelection] = useState({});
+  const selectedCount = Object.keys(rowSelection).length;
 
   const columns: ColumnDef<ManagedProxyServer>[] = useMemo(
     () => [
@@ -109,19 +122,24 @@ export function PageServers() {
         id: "lastChecked",
         header: "Check",
         cell: ({ row }) => {
-          const now = useNow();
+          const now = DateTime.fromJSDate(useNow()) as DateTime<true>;
           const lastChecked = DateTime.fromISO(
             row.original.Server?.LastChecked,
           ) as DateTime<true> | null;
-          const text =
-            lastChecked?.toRelative({
-              base: DateTime.fromJSDate(now),
-              style: "narrow",
-            }) ?? "";
+
+          let text = "";
+          if (lastChecked) {
+            const start = lastChecked > now ? now : lastChecked;
+            text =
+              start.toRelative({
+                base: now,
+                style: "narrow",
+              }) ?? "";
+          }
 
           const recheck = durationToMs(recheckInterval);
           const deadline = recheck
-            ? DateTime.now().minus(Duration.fromMillis(recheck))
+            ? now.minus(Duration.fromMillis(recheck))
             : null;
 
           return (
@@ -140,12 +158,12 @@ export function PageServers() {
       },
       {
         id: "listener",
-        header: "Port local",
+        header: "LAN",
         cell: ({ row }) => {
           const listener = useMatchingListener(row.original.Server?.Id ?? "");
 
           if (listener) {
-            return listener.Listener?.Port;
+            return <CopyableSpan text={listener.Listener?.Port} />;
           }
         },
       },
@@ -161,27 +179,23 @@ export function PageServers() {
             <div className="flex gap-1">
               <CopyTooltip copyData={[getServerString(row.original.Server)]}>
                 <Button size="icon" variant="outline">
-                  <div className="flex flex-col items-center">
-                    <span className="text-xs">Gốc</span>
-                    <Clipboard />
-                  </div>
+                  <span className="absolute -translate-y-3 text-xs">Gốc</span>
+                  <ClipboardIcon />
                 </Button>
               </CopyTooltip>
 
               {listener && (
-                <CopyTooltip
-                  copyData={[
-                    `http://${localIp || "localhost"}:${listener.Port}`,
-                  ]}
-                >
+                <CopyTooltip copyData={[`http://${localIp}:${listener.Port}`]}>
                   <Button size="icon" variant="outline">
-                    <div className="flex flex-col items-center">
-                      <span className="text-xs">LAN</span>
-                      <Clipboard />
-                    </div>
+                    <span className="absolute -translate-y-3 text-xs">LAN</span>
+                    <ClipboardIcon />
                   </Button>
                 </CopyTooltip>
               )}
+
+              <Button size="icon" variant="outline">
+                <XIcon className="text-destructive" />
+              </Button>
             </div>
           );
         },
@@ -196,14 +210,48 @@ export function PageServers() {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onRowSelectionChange: setRowSelection,
+    getRowId: (row) => row.Server?.Id || "",
     state: {
       rowSelection,
     },
   });
 
+  const actions = useMemo(
+    () => (
+      <div className="flex justify-start gap-1">
+        <Button>
+          <PlusIcon /> Thêm proxy
+        </Button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button variant="outline">
+              <DownloadIcon /> Xuất proxy
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>Xuất proxy gốc - toàn bộ</DropdownMenuItem>
+            <DropdownMenuItem disabled={selectedCount === 0}>
+              Xuất proxy gốc - {selectedCount} proxy đã chọn
+            </DropdownMenuItem>
+            <DropdownMenuItem>Xuất proxy LAN - toàn bộ</DropdownMenuItem>
+            <DropdownMenuItem disabled={selectedCount === 0}>
+              Xuất proxy LAN - {selectedCount} proxy đã chọn
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <Button disabled={selectedCount === 0} variant="outline">
+          <TrashIcon className="text-destructive" /> Xóa {selectedCount} proxy
+        </Button>
+      </div>
+    ),
+    [selectedCount],
+  );
+
   return (
     <div>
-      <DataTable title="Proxy nguồn" table={table} />
+      <DataTable title="Proxy nguồn" table={table} actions={actions} />
     </div>
   );
 }

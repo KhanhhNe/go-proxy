@@ -219,14 +219,17 @@ const DataTable = <T,>({
   table,
   ref,
   className,
+  actions,
 }: {
   title: string;
   table: TanstackTable<T>;
   ref?: React.LegacyRef<HTMLDivElement>;
+  actions?: React.ReactNode;
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div className={cn("flex flex-col gap-2", className)} ref={ref}>
       <div className="text-2xl font-bold">{title}</div>
+      {actions}
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
