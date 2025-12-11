@@ -52,6 +52,9 @@ type IsPreparedFunc func() bool
 // Connect and open a tunnel for 2-way connection & transfer
 type ConnectFunc func(string) (net.Conn, error)
 
+// Cleanup the resources for deallocation
+type CleanupFunc func()
+
 func NewServer(host string, port int, auth *common.ProxyAuth) *Server {
 	return &Server{
 		uuid.NewString(),
@@ -92,18 +95,23 @@ func (s *Server) Printlnf(f string, a ...any) {
 }
 
 func (s *Server) Prepare() error {
-	f, _, _ := s.getHandlers()
+	f, _, _, _ := s.getHandlers()
 	return f()
 }
 
 func (s *Server) IsPrepared() bool {
-	_, f, _ := s.getHandlers()
+	_, f, _, _ := s.getHandlers()
 	return f()
 }
 
 func (s *Server) Connect(target string) (net.Conn, error) {
-	_, _, f := s.getHandlers()
+	_, _, f, _ := s.getHandlers()
 	return f(target)
+}
+
+func (s *Server) Cleanup() {
+	_, _, _, f := s.getHandlers()
+	f()
 }
 
 func (s *Server) CheckServer() {
@@ -164,16 +172,16 @@ func (s *Server) CheckServer() {
 }
 
 func (s *Server) CheckAlive() bool {
-	prepare, isPrepared, connect := s.getHandlers()
+	defer s.Cleanup()
 
-	if !isPrepared() {
-		err := prepare()
+	if !s.IsPrepared() {
+		err := s.Prepare()
 		if err != nil {
 			return false
 		}
 	}
 
-	conn, err := connect(common.IP_CHECK_HOST + ":80")
+	conn, err := s.Connect(common.IP_CHECK_HOST + ":80")
 	if err != nil || conn == nil {
 		return false
 	}
@@ -207,17 +215,23 @@ func (s *Server) CheckAlive() bool {
 	return true
 }
 
-func (s *Server) getHandlers() (PrepareFunc, IsPreparedFunc, ConnectFunc) {
+func (s *Server) getHandlers() (PrepareFunc, IsPreparedFunc, ConnectFunc, CleanupFunc) {
+	common.DataMutex.RLock()
+	defer common.DataMutex.RUnlock()
+
 	switch true {
 	case s.Protocols[PROTO_Http]:
-		return s.prepareHttp, s.isPreparedHttp, s.connectHttp
+		return s.prepareHttp, s.isPreparedHttp, s.connectHttp, s.cleanupHttp
 	case s.Protocols[PROTO_Socks5]:
-		return s.prepareSocks5, s.isPreparedSocks5, s.connectSocks5
+		return s.prepareSocks5, s.isPreparedSocks5, s.connectSocks5, s.cleanupSocks5
 	case s.Protocols[PROTO_Ssh]:
-		return s.prepareSsh, s.isPreparedSsh, s.connectSsh
+		return s.prepareSsh, s.isPreparedSsh, s.connectSsh, s.cleanupSsh
 	case s.Protocols[PROTO_Direct]:
-		return s.prepareDirect, s.isPreparedDirect, s.connectDirect
+		return s.prepareDirect, s.isPreparedDirect, s.connectDirect, s.cleanupDirect
 	}
 
-	panic(errtrace.Errorf("No supported protocol for this server"))
+	return func() error { return nil },
+		func() bool { return false },
+		func(string) (net.Conn, error) { return nil, nil },
+		func() {}
 }

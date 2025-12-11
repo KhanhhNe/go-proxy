@@ -1,7 +1,8 @@
-import { GetAppState, GetManager } from "@bindings/go-proxy/myservice";
+import { Events } from "@wailsio/runtime";
 import { useEffect } from "react";
 import { AppSidebar } from "./components/app-sidebar";
 import { SidebarProvider } from "./components/ui/sidebar";
+import { debounce } from "./lib/utils";
 import { PageIndex } from "./pages";
 import { PageServers } from "./pages/servers";
 import {
@@ -13,15 +14,23 @@ import {
 
 function App() {
   const page = usePageStore((state) => state.page);
-  const setManager = useManagerStore((state) => state.setManager);
-  const setAppState = useAppStateStore((state) => state.setState);
+  const fetchManager = debounce(
+    useManagerStore((state) => state.fetchManager),
+    500,
+  );
+  const fetchAppState = useAppStateStore((state) => state.fetchState);
 
   useEffect(() => {
-    setInterval(
-      () => GetManager().then((m) => (m ? setManager(m) : null)),
-      1000,
-    );
-    setInterval(() => GetAppState().then((s) => setAppState(s)), 1000);
+    fetchManager();
+    fetchAppState();
+    // const appStateInt = setInterval(fetchAppState, 1000);
+
+    Events.On("goproxy:data-changed", () => setTimeout(fetchManager));
+
+    return () => {
+      // clearInterval(appStateInt);
+      Events.Off("goproxy:data-changed");
+    };
   }, []);
 
   return (

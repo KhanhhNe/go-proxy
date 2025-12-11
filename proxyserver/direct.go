@@ -25,3 +25,5 @@ func (s *Server) connectDirect(target string) (net.Conn, error) {
 	c, err := net.Dial("tcp", target)
 	return c, errtrace.Wrap(err)
 }
+
+func (s *Server) cleanupDirect() {}

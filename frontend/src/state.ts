@@ -1,4 +1,10 @@
-import { AppState, listenerServerManager } from "@bindings/go-proxy/models";
+import {
+  AppState,
+  listenerServerManager,
+  ManagedLocalListener,
+  ManagedProxyServer,
+} from "@bindings/go-proxy/models";
+import { GetAppState, GetManager } from "@bindings/go-proxy/myservice";
 import type {} from "@redux-devtools/extension"; // Required for zustand IDE typing
 import { createWithEqualityFn as create } from "zustand/traditional";
 import { equalJson } from "./lib/utils";
@@ -19,22 +25,35 @@ export const usePageStore = create<{
 
 export const useManagerStore = create<{
   manager: listenerServerManager | null;
-  setManager: (m: listenerServerManager) => void;
+  servers: ManagedProxyServer[];
+  listeners: ManagedLocalListener[];
+  fetchManager: () => Promise<void>;
 }>(
   (set) => ({
     manager: null,
-    setManager: (manager: listenerServerManager) => set({ manager }),
+    servers: [],
+    listeners: [],
+    fetchManager: () =>
+      GetManager().then((manager) => {
+        if (manager) {
+          set({
+            manager,
+            servers: Object.values(manager.Servers ?? {}).filter(Boolean),
+            listeners: Object.values(manager.Listeners ?? {}).filter(Boolean),
+          });
+        }
+      }),
   }),
   equalJson,
 );
 
 export const useAppStateStore = create<{
   state: AppState | null;
-  setState: (s: AppState) => void;
+  fetchState: () => Promise<void>;
 }>(
   (set) => ({
     state: null,
-    setState: (state: AppState) => set({ state }),
+    fetchState: () => GetAppState().then((state) => set({ state })),
   }),
   equalJson,
 );
@@ -42,10 +61,11 @@ export const useAppStateStore = create<{
 /**
  * @deprecated This hook only exists for initial release
  */
-export const useMatchingListener = (serverId: string) => {
-  const manager = useManagerStore((s) => s.manager);
-
-  for (const listener of Object.values(manager?.Listeners ?? {})) {
+export const findMatchingListener = (
+  serverId: string,
+  listeners: ManagedLocalListener[],
+) => {
+  for (const listener of Object.values(listeners ?? {})) {
     if (serverId in (listener?.Listener?.Filter.ServerIds ?? {})) {
       return listener;
     }

@@ -115,3 +115,19 @@ export function useNow() {
 export function durationToMs(duration?: number) {
   return duration != null ? Math.round(duration / 1_000_000) : duration;
 }
+
+export function debounce<F extends (...args: any[]) => any>(
+  func: F,
+  waitFor: number,
+) {
+  let timeout: ReturnType<typeof setTimeout>;
+
+  return (...args: Parameters<F>): void => {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(() => {
+      func(...args);
+    }, waitFor);
+  };
+}

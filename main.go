@@ -9,6 +9,10 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
+func init() {
+	application.RegisterEvent[application.Void]("goproxy:data-changed")
+}
+
 func main() {
 	app := application.New(application.Options{
 		Name: "go-proxy",

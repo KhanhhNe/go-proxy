@@ -11,6 +11,7 @@ import (
 
 	"braces.dev/errtrace"
 	"github.com/oschwald/maxminddb-golang/v2"
+	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 const (
@@ -94,4 +95,13 @@ func GetIpCountry(ip netip.Addr) (string, error) {
 	return code, nil
 }
 
-var DataMutex sync.RWMutex
+type GlobalDataMutext struct {
+	sync.RWMutex
+}
+
+func (m *GlobalDataMutext) Unlock() {
+	m.RWMutex.Unlock()
+	application.Get().Event.Emit("goproxy:data-changed")
+}
+
+var DataMutex GlobalDataMutext

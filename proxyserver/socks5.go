@@ -135,3 +135,5 @@ func (s *Server) connectAndAuthSocks5() (net.Conn, error) {
 
 	return netConn, nil
 }
+
+func (s *Server) cleanupSocks5() {}

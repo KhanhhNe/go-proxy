@@ -16,15 +16,17 @@ import {
   useNow,
 } from "@/lib/utils";
 import {
+  findMatchingListener,
   useAppStateStore,
   useManagerStore,
-  useMatchingListener,
 } from "@/state";
 import { ManagedProxyServer } from "@bindings/go-proxy";
+import { DeleteListeners, DeleteServers } from "@bindings/go-proxy/myservice";
 import {
   ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
+  RowSelectionState,
 } from "@tanstack/react-table";
 import {
   ClipboardIcon,
@@ -36,173 +38,201 @@ import {
 import { DateTime, Duration } from "luxon";
 import { useMemo, useState } from "react";
 
-export function PageServers() {
-  const recheckInterval = useManagerStore(
-    (state) => state.manager?.ServerRecheckInterval,
-  );
-  const servers = useManagerStore((state) =>
-    Object.values(state.manager?.Servers || {}).filter(Boolean),
-  );
+const useColumns = () => {
+  const { recheckInterval, listeners } = useManagerStore((state) => ({
+    recheckInterval: state.manager?.ServerRecheckInterval,
+    listeners: state.listeners,
+  }));
   const localIp = useAppStateStore((s) => s.state?.LocalIp);
+  const deleteServers = useDeleteServers();
 
-  const [rowSelection, setRowSelection] = useState({});
-  const selectedCount = Object.keys(rowSelection).length;
+  return [
+    {
+      header: "Host",
+      cell: ({ row }) => (
+        <CopyableSpan
+          text={row.original.Server?.Host}
+          contentProps={{ align: "start" }}
+        />
+      ),
+    },
+    {
+      header: "Port",
+      cell: ({ row }) => <CopyableSpan text={row.original.Server?.Port} />,
+    },
+    {
+      header: "User",
+      cell: ({ row }) => (
+        <CopyableSpan
+          text={row.original.Server?.Auth?.Username}
+          contentProps={{ align: "start" }}
+        />
+      ),
+    },
+    {
+      header: "Pass",
+      cell: ({ row }) => (
+        <CopyableSpan
+          text={row.original.Server?.Auth?.Password}
+          contentProps={{ align: "start" }}
+        />
+      ),
+    },
+    {
+      header: "IP thật",
+      cell: ({ row }) => {
+        const sameIp =
+          row.original.Server?.PublicIp === row.original.Server?.Host;
 
-  const columns: ColumnDef<ManagedProxyServer>[] = useMemo(
-    () => [
-      {
-        id: "host",
-        header: "Host",
-        cell: ({ row }) => (
-          <CopyableSpan
-            text={row.original.Server?.Host}
-            contentProps={{ align: "start" }}
-          />
-        ),
+        return (
+          <span className={cn(sameIp && "opacity-25 hover:opacity-100")}>
+            <CopyableSpan
+              text={row.original.Server?.PublicIp}
+              contentProps={{ align: "start" }}
+            />
+          </span>
+        );
       },
-      {
-        id: "port",
-        header: "Port",
-        cell: ({ row }) => <CopyableSpan text={row.original.Server?.Port} />,
-      },
-      {
-        id: "user",
-        header: "User",
-        cell: ({ row }) => (
-          <CopyableSpan
-            text={row.original.Server?.Auth?.Username}
-            contentProps={{ align: "start" }}
-          />
-        ),
-      },
-      {
-        id: "password",
-        header: "Pass",
-        cell: ({ row }) => (
-          <CopyableSpan
-            text={row.original.Server?.Auth?.Password}
-            contentProps={{ align: "start" }}
-          />
-        ),
-      },
-      {
-        id: "public_ip",
-        header: "IP thật",
-        cell: ({ row }) => {
-          const sameIp =
-            row.original.Server?.PublicIp === row.original.Server?.Host;
+    },
+    {
+      header: "Tags",
+      cell: ({ row }) => (
+        <div className="flex gap-1">
+          {getTags(row.original.Tags).map((tag) => (
+            <Tag key={tag} text={tag} />
+          ))}
+        </div>
+      ),
+    },
+    {
+      header: "Ping",
+      cell: ({ row }) => durationToMs(row.original.Server?.Latency),
+    },
+    {
+      header: "Check",
+      cell: ({ row }) => {
+        const now = DateTime.fromJSDate(useNow()) as DateTime<true>;
+        const lastChecked = DateTime.fromISO(
+          row.original.Server?.LastChecked,
+        ) as DateTime<true> | null;
 
-          return (
-            <span className={cn(sameIp && "opacity-25 hover:opacity-100")}>
-              <CopyableSpan
-                text={row.original.Server?.PublicIp}
-                contentProps={{ align: "start" }}
-              />
-            </span>
-          );
-        },
+        let text = "";
+        if (lastChecked) {
+          const start = lastChecked > now ? now : lastChecked;
+          text =
+            start.toRelative({
+              base: now,
+              style: "narrow",
+            }) ?? "";
+        }
+
+        const recheck = durationToMs(recheckInterval);
+        const deadline = recheck
+          ? now.minus(Duration.fromMillis(recheck))
+          : null;
+
+        return (
+          <span
+            className={cn(
+              deadline &&
+                lastChecked &&
+                lastChecked < deadline &&
+                "bg-yellow-400",
+            )}
+          >
+            {text.replaceAll("trước", "")}
+          </span>
+        );
       },
-      {
-        id: "tags",
-        header: "Tags",
-        cell: ({ row }) => (
+    },
+    {
+      header: "LAN",
+      cell: ({ row }) => {
+        const listener = findMatchingListener(
+          row.original.Server?.Id ?? "",
+          listeners ?? [],
+        );
+
+        if (listener) {
+          return <CopyableSpan text={listener.Listener?.Port} />;
+        }
+      },
+    },
+    {
+      header: "Hành động",
+      cell: ({ row }) => {
+        const listener = findMatchingListener(
+          row.original.Server?.Id ?? "",
+          listeners ?? [],
+        )?.Listener;
+
+        return (
           <div className="flex gap-1">
-            {getTags(row.original.Tags).map((tag) => (
-              <Tag key={tag} text={tag} />
-            ))}
-          </div>
-        ),
-      },
-      {
-        id: "ping",
-        header: "Ping",
-        cell: ({ row }) => durationToMs(row.original.Server?.Latency),
-      },
-      {
-        id: "lastChecked",
-        header: "Check",
-        cell: ({ row }) => {
-          const now = DateTime.fromJSDate(useNow()) as DateTime<true>;
-          const lastChecked = DateTime.fromISO(
-            row.original.Server?.LastChecked,
-          ) as DateTime<true> | null;
+            <CopyTooltip copyData={[getServerString(row.original.Server)]}>
+              <Button size="icon" variant="outline">
+                <span className="absolute -translate-y-3 text-xs">Gốc</span>
+                <ClipboardIcon />
+              </Button>
+            </CopyTooltip>
 
-          let text = "";
-          if (lastChecked) {
-            const start = lastChecked > now ? now : lastChecked;
-            text =
-              start.toRelative({
-                base: now,
-                style: "narrow",
-              }) ?? "";
-          }
-
-          const recheck = durationToMs(recheckInterval);
-          const deadline = recheck
-            ? now.minus(Duration.fromMillis(recheck))
-            : null;
-
-          return (
-            <span
-              className={cn(
-                deadline &&
-                  lastChecked &&
-                  lastChecked < deadline &&
-                  "bg-yellow-400",
-              )}
-            >
-              {text.replaceAll("trước", "")}
-            </span>
-          );
-        },
-      },
-      {
-        id: "listener",
-        header: "LAN",
-        cell: ({ row }) => {
-          const listener = useMatchingListener(row.original.Server?.Id ?? "");
-
-          if (listener) {
-            return <CopyableSpan text={listener.Listener?.Port} />;
-          }
-        },
-      },
-      {
-        id: "actions",
-        header: "Hành động",
-        cell: ({ row }) => {
-          const listener = useMatchingListener(
-            row.original.Server?.Id ?? "",
-          )?.Listener;
-
-          return (
-            <div className="flex gap-1">
-              <CopyTooltip copyData={[getServerString(row.original.Server)]}>
+            {listener && (
+              <CopyTooltip copyData={[`http://${localIp}:${listener.Port}`]}>
                 <Button size="icon" variant="outline">
-                  <span className="absolute -translate-y-3 text-xs">Gốc</span>
+                  <span className="absolute -translate-y-3 text-xs">LAN</span>
                   <ClipboardIcon />
                 </Button>
               </CopyTooltip>
+            )}
 
-              {listener && (
-                <CopyTooltip copyData={[`http://${localIp}:${listener.Port}`]}>
-                  <Button size="icon" variant="outline">
-                    <span className="absolute -translate-y-3 text-xs">LAN</span>
-                    <ClipboardIcon />
-                  </Button>
-                </CopyTooltip>
-              )}
-
-              <Button size="icon" variant="outline">
-                <XIcon className="text-destructive" />
-              </Button>
-            </div>
-          );
-        },
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={() => deleteServers([row.original])}
+            >
+              <XIcon className="text-destructive" />
+            </Button>
+          </div>
+        );
       },
-    ],
-    [],
-  );
+    },
+  ] satisfies ColumnDef<ManagedProxyServer>[];
+};
+
+const useDeleteServers = () => {
+  const { listeners } = useManagerStore((state) => ({
+    listeners: state.listeners,
+  }));
+
+  return (servers: ManagedProxyServer[]) => {
+    // Find all listeners that are associated with the servers to be deleted
+    const listenersToDelete = new Set<number>();
+    for (const server of servers) {
+      const listener = findMatchingListener(
+        server.Server?.Id ?? "",
+        listeners ?? [],
+      );
+      if (listener?.Listener?.Port) {
+        listenersToDelete.add(listener.Listener?.Port);
+      }
+    }
+
+    return Promise.all([
+      DeleteServers(servers.map((s) => s.Server?.Id).filter(Boolean)),
+      DeleteListeners(Array.from(listenersToDelete).filter(Boolean)),
+    ]);
+  };
+};
+
+export function PageServers() {
+  const { servers } = useManagerStore((state) => ({
+    servers: state.servers,
+  }));
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const columns = useColumns();
+
+  const deleteServers = useDeleteServers();
+
+  const selectedCount = Object.keys(rowSelection).length;
 
   const table = useTable({
     data: servers,
@@ -210,7 +240,6 @@ export function PageServers() {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onRowSelectionChange: setRowSelection,
-    getRowId: (row) => row.Server?.Id || "",
     state: {
       rowSelection,
     },
@@ -224,7 +253,7 @@ export function PageServers() {
         </Button>
 
         <DropdownMenu>
-          <DropdownMenuTrigger>
+          <DropdownMenuTrigger asChild>
             <Button variant="outline">
               <DownloadIcon /> Xuất proxy
             </Button>
@@ -241,7 +270,15 @@ export function PageServers() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button disabled={selectedCount === 0} variant="outline">
+        <Button
+          disabled={selectedCount === 0}
+          variant="outline"
+          onClick={() =>
+            deleteServers(
+              Object.keys(rowSelection).map((k) => servers[Number(k)]),
+            )
+          }
+        >
           <TrashIcon className="text-destructive" /> Xóa {selectedCount} proxy
         </Button>
       </div>

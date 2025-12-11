@@ -77,8 +77,6 @@ func (s *MyService) ServiceStartup(ctx context.Context, options application.Serv
 }
 
 func (s *MyService) GetManager() *listenerServerManager {
-	// common.DataMutex.RLock()
-	// defer common.DataMutex.RUnlock()
 	return ListenerServerManager
 }
 
@@ -99,6 +97,40 @@ func (s *MyService) GetAppState() (state AppState) {
 	wg.Wait()
 
 	return
+}
+
+func (s *MyService) DeleteServers(ids []string) {
+	for _, id := range ids {
+		common.DataMutex.RLock()
+		server, ok := ListenerServerManager.Servers[id]
+		common.DataMutex.RUnlock()
+
+		if ok {
+			// Server shutdown
+			server.Server.Cleanup()
+		}
+
+		common.DataMutex.Lock()
+		delete(ListenerServerManager.Servers, id)
+		common.DataMutex.Unlock()
+	}
+}
+
+func (s *MyService) DeleteListeners(ports []int) {
+	for _, port := range ports {
+		common.DataMutex.RLock()
+		listener, ok := ListenerServerManager.Listeners[port]
+		common.DataMutex.RUnlock()
+
+		if ok {
+			// Stop listener
+			listener.cancel()
+		}
+
+		common.DataMutex.Lock()
+		delete(ListenerServerManager.Listeners, port)
+		common.DataMutex.Unlock()
+	}
 }
 
 func getLocalIp() string {

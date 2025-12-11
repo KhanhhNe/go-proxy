@@ -49,3 +49,5 @@ func (s *Server) connectHttp(target string) (net.Conn, error) {
 
 	return conn, nil
 }
+
+func (s *Server) cleanupHttp() {}

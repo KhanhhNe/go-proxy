@@ -91,7 +91,7 @@ func (m *listenerServerManager) AddServers(servers []*proxyserver.Server) error 
 		}
 
 		common.DataMutex.Lock()
-		m.Servers[s.String()] = managedServer
+		m.Servers[s.Id] = managedServer
 		common.DataMutex.Unlock()
 
 		managedServer.checkServer()

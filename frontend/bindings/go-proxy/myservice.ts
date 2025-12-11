@@ -9,6 +9,14 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 // @ts-ignore: Unused imports
 import * as $models from "./models.js";
 
+export function DeleteListeners(ports: number[]): $CancellablePromise<void> {
+    return $Call.ByName("main.MyService.DeleteListeners", ports);
+}
+
+export function DeleteServers(ids: string[]): $CancellablePromise<void> {
+    return $Call.ByName("main.MyService.DeleteServers", ids);
+}
+
 export function GetAppState(): $CancellablePromise<$models.AppState> {
     return $Call.ByName("main.MyService.GetAppState").then(($result: any) => {
         return $$createType0($result);

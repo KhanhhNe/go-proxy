@@ -62,3 +62,12 @@ func (s *Server) connectSshRetry(target string, retries int) (net.Conn, error) {
 	}
 	return c, errtrace.Wrap(err)
 }
+
+func (s *Server) cleanupSsh() {
+	common.DataMutex.Lock()
+	if s.sshState.client != nil {
+		s.sshState.client.Close()
+		s.sshState.client = nil
+	}
+	common.DataMutex.Unlock()
+}
