@@ -77,6 +77,8 @@ func (s *MyService) ServiceStartup(ctx context.Context, options application.Serv
 }
 
 func (s *MyService) GetManager() *listenerServerManager {
+	common.DataMutex.RLock()
+	defer common.DataMutex.RUnlock()
 	return ListenerServerManager
 }
 

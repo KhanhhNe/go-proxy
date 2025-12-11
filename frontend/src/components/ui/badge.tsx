@@ -49,10 +49,10 @@ function Tag({ className, text }: { className?: string; text: string }) {
   return (
     <Tooltip>
       <TooltipTrigger>
-        {country ? <div className="w-[10ch]">{badge}</div> : badge}
+        {country ? <div className="w-[10ch] text-left">{badge}</div> : badge}
       </TooltipTrigger>
       {country && (
-        <TooltipContent>
+        <TooltipContent align="start">
           <p>{country.vietnamese_name}</p>
         </TooltipContent>
       )}

@@ -57,7 +57,7 @@ type CleanupFunc func()
 
 func NewServer(host string, port int, auth *common.ProxyAuth) *Server {
 	return &Server{
-		uuid.NewString(),
+		uuid.Must(uuid.NewV7()).String(),
 		host,
 		port,
 		auth,

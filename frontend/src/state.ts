@@ -7,7 +7,7 @@ import {
 import { GetAppState, GetManager } from "@bindings/go-proxy/myservice";
 import type {} from "@redux-devtools/extension"; // Required for zustand IDE typing
 import { createWithEqualityFn as create } from "zustand/traditional";
-import { equalJson } from "./lib/utils";
+import { equalJson, sortBy } from "./lib/utils";
 
 export const PAGES = {
   index: "index",
@@ -38,8 +38,14 @@ export const useManagerStore = create<{
         if (manager) {
           set({
             manager,
-            servers: Object.values(manager.Servers ?? {}).filter(Boolean),
-            listeners: Object.values(manager.Listeners ?? {}).filter(Boolean),
+            servers: sortBy(
+              Object.values(manager.Servers ?? {}).filter(Boolean),
+              (s) => s.Server?.Id,
+            ),
+            listeners: sortBy(
+              Object.values(manager.Listeners ?? {}).filter(Boolean),
+              (l) => l.Listener?.Port,
+            ),
           });
         }
       }),

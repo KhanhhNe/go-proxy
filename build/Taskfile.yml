@@ -75,7 +75,6 @@ tasks:
     summary: Runs the frontend in development mode
     dir: frontend
     cmds:
-      - npx -y kill-port {{.VITE_PORT}} | echo 0
       - npm run dev -- --port {{.VITE_PORT}} --strictPort
 
   update:build-assets:
