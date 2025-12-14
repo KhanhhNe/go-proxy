@@ -13,6 +13,7 @@ import {
   durationToMs,
   getServerString,
   getTags,
+  PROTOCOLS,
   useNow,
 } from "@/lib/utils";
 import {
@@ -166,9 +167,19 @@ const useColumns = () => {
           listeners ?? [],
         )?.Listener;
 
+        const serverText = getServerString(row.original.Server);
+        const lanText = getServerString({
+          Host: localIp ?? "localhost",
+          Protocols: {
+            [PROTOCOLS.HTTP]: true,
+            [PROTOCOLS.SOCKS5]: true,
+          },
+          ...listener,
+        });
+
         return (
           <div className="flex gap-1">
-            <CopyTooltip copyData={[getServerString(row.original.Server)]}>
+            <CopyTooltip copyData={[serverText]} tooltip={serverText}>
               <Button size="icon" variant="outline">
                 <span className="absolute -translate-y-3 text-xs">Gốc</span>
                 <ClipboardIcon />
@@ -176,7 +187,7 @@ const useColumns = () => {
             </CopyTooltip>
 
             {listener && (
-              <CopyTooltip copyData={[`http://${localIp}:${listener.Port}`]}>
+              <CopyTooltip copyData={[lanText]} tooltip={lanText}>
                 <Button size="icon" variant="outline">
                   <span className="absolute -translate-y-3 text-xs">LAN</span>
                   <ClipboardIcon />

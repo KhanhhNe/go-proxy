@@ -1,4 +1,4 @@
-import { ManagedProxyServer } from "@bindings/go-proxy";
+import { ProxyAuth } from "@bindings/go-proxy/common";
 import { clsx, type ClassValue } from "clsx";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
@@ -77,12 +77,22 @@ export function getTags(tags: Record<string, boolean>) {
   );
 }
 
-export function getServerString(server: ManagedProxyServer["Server"]) {
+export function getServerString(
+  server?: {
+    Host: string;
+    Port?: number;
+    Protocols: Record<string, boolean>;
+    Auth?: ProxyAuth | null;
+  } | null,
+) {
   if (!server) {
     return "";
   }
 
-  let result = `${server.Host}:${server.Port}`;
+  let result = server.Host;
+  if (server.Port) {
+    result += `:${server.Port}`;
+  }
 
   if (server.Auth) {
     result = `${server.Auth.Username}:${server.Auth.Password}@${result}`;

@@ -12,7 +12,7 @@ const TooltipTrigger = TooltipPrimitive.Trigger;
 const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
->(({ className, sideOffset = 4, ...props }, ref) => (
+>(({ className, sideOffset = 2, ...props }, ref) => (
   <TooltipPrimitive.Portal>
     <TooltipPrimitive.Content
       ref={ref}
@@ -34,22 +34,24 @@ interface PassthroughTooltipProps {
 
 const CopyTooltip = ({
   copyData,
+  tooltip,
   children,
   triggerProps,
   contentProps,
 }: React.PropsWithChildren<{
   copyData: (ClipboardItem | string)[];
+  tooltip?: string;
 }> &
   PassthroughTooltipProps) => {
-  const TOOLTIP_DEFAULT = "Sao chép";
+  const TOOLTIP_DEFAULT = tooltip ?? "Sao chép";
   const TOOLTIP_SUCCESS = "Đã sao chép";
 
-  const [tooltip, setTooltip] = React.useState(TOOLTIP_DEFAULT);
+  const [showingTooltip, setTooltip] = React.useState(TOOLTIP_DEFAULT);
   const ref = React.useRef<HTMLButtonElement>(null);
 
   const [open, setOpen] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
-  const isSuccessTooltip = tooltip === TOOLTIP_SUCCESS;
+  const isSuccessTooltip = showingTooltip === TOOLTIP_SUCCESS;
 
   const handleClick = React.useCallback(() => {
     setCopied(true);
@@ -75,11 +77,7 @@ const CopyTooltip = ({
   }, []);
 
   return (
-    <Tooltip
-      open={open || copied}
-      onOpenChange={setOpen}
-      disableHoverableContent={true}
-    >
+    <Tooltip open={open || copied} onOpenChange={setOpen}>
       <TooltipTrigger
         ref={ref}
         onClick={handleClick}
@@ -96,7 +94,7 @@ const CopyTooltip = ({
           contentProps?.className,
         )}
       >
-        {tooltip}
+        {showingTooltip}
       </TooltipContent>
     </Tooltip>
   );
@@ -104,14 +102,16 @@ const CopyTooltip = ({
 
 const CopyableSpan = ({
   text,
+  tooltip,
   triggerProps,
   contentProps,
   ...props
 }: React.HTMLAttributes<HTMLSpanElement> &
-  PassthroughTooltipProps & { text: any }) =>
+  PassthroughTooltipProps & { text: any; tooltip?: string }) =>
   text != null ? (
     <CopyTooltip
       copyData={[String(text)]}
+      tooltip={tooltip}
       triggerProps={{ asChild: true, ...triggerProps }}
       contentProps={contentProps}
     >
