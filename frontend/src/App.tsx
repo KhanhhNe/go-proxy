@@ -31,6 +31,7 @@ function App() {
       // clearInterval(appStateInt);
       Events.Off("goproxy:data-changed");
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

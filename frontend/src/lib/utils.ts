@@ -77,14 +77,14 @@ export function getTags(tags: Record<string, boolean>) {
   );
 }
 
-export function getServerString(
-  server?: {
-    Host: string;
-    Port?: number;
-    Protocols: Record<string, boolean>;
-    Auth?: ProxyAuth | null;
-  } | null,
-) {
+export type StringableServer = {
+  Host: string;
+  Port?: number;
+  Protocols: Record<string, boolean>;
+  Auth?: ProxyAuth | null;
+};
+
+export function getServerString(server?: StringableServer | null) {
   if (!server) {
     return "";
   }

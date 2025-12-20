@@ -8,7 +8,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
 } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 const columns: ColumnDef<ManagedLocalListener>[] = [
   {
@@ -58,10 +58,7 @@ const columns: ColumnDef<ManagedLocalListener>[] = [
 
 export function PageIndex() {
   const manager = useManagerStore((state) => state.manager);
-  const listeners = useMemo(
-    () => Object.values(manager?.Listeners || {}).filter(Boolean),
-    [manager],
-  );
+  const listeners = Object.values(manager?.Listeners || {}).filter(Boolean);
 
   const [rowSelection, setRowSelection] = useState({});
 

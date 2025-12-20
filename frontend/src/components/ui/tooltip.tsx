@@ -38,9 +38,11 @@ const CopyTooltip = ({
   children,
   triggerProps,
   contentProps,
+  onCopy,
 }: React.PropsWithChildren<{
   copyData: (ClipboardItem | string)[];
   tooltip?: string;
+  onCopy?: () => any;
 }> &
   PassthroughTooltipProps) => {
   const TOOLTIP_DEFAULT = tooltip ?? "Sao chép";
@@ -53,7 +55,7 @@ const CopyTooltip = ({
   const [copied, setCopied] = React.useState(false);
   const isSuccessTooltip = showingTooltip === TOOLTIP_SUCCESS;
 
-  const handleClick = React.useCallback(() => {
+  const handleClick = () => {
     setCopied(true);
 
     navigator.clipboard
@@ -72,9 +74,11 @@ const CopyTooltip = ({
 
           // Use setTimeout to allow animation to finish
           setTimeout(() => setTooltip(TOOLTIP_DEFAULT), 100);
+
+          onCopy?.();
         }, 1000);
       });
-  }, []);
+  };
 
   return (
     <Tooltip open={open || copied} onOpenChange={setOpen}>

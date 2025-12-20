@@ -1,12 +1,20 @@
 import { Tag } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DataTable, useTable } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import { CopyableSpan, CopyTooltip } from "@/components/ui/tooltip";
 import {
   cn,
@@ -14,6 +22,7 @@ import {
   getServerString,
   getTags,
   PROTOCOLS,
+  StringableServer,
   useNow,
 } from "@/lib/utils";
 import {
@@ -37,7 +46,7 @@ import {
   XIcon,
 } from "lucide-react";
 import { DateTime, Duration } from "luxon";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 const useColumns = () => {
   const { recheckInterval, listeners } = useManagerStore((state) => ({
@@ -111,8 +120,9 @@ const useColumns = () => {
     },
     {
       header: "Check",
-      cell: ({ row }) => {
-        const now = DateTime.fromJSDate(useNow()) as DateTime<true>;
+      cell: function CheckCell({ row }) {
+        const nowTime = useNow();
+        const now = DateTime.fromJSDate(nowTime) as DateTime<true>;
         const lastChecked = DateTime.fromISO(
           row.original.Server?.LastChecked,
         ) as DateTime<true> | null;
@@ -238,12 +248,12 @@ export function PageServers() {
   const { servers } = useManagerStore((state) => ({
     servers: state.servers,
   }));
+  const localIp = useAppStateStore((state) => state.state?.LocalIp);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const columns = useColumns();
-
   const deleteServers = useDeleteServers();
-
-  const selectedCount = Object.keys(rowSelection).length;
+  const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [proxyExportContent, setProxyExportContent] = useState("");
 
   const table = useTable({
     data: servers,
@@ -256,50 +266,113 @@ export function PageServers() {
     },
   });
 
-  const actions = useMemo(
-    () => (
-      <div className="flex justify-start gap-1">
-        <Button>
-          <PlusIcon /> Thêm proxy
-        </Button>
+  const selectedServers = Object.keys(rowSelection).map(
+    (k) => servers[Number(k)],
+  );
+  const selectedCount = selectedServers.length;
+  const exportingServers = selectedCount > 0 ? selectedServers : servers;
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">
-              <DownloadIcon /> Xuất proxy
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem>Xuất proxy gốc - toàn bộ</DropdownMenuItem>
-            <DropdownMenuItem disabled={selectedCount === 0}>
-              Xuất proxy gốc - {selectedCount} proxy đã chọn
-            </DropdownMenuItem>
-            <DropdownMenuItem>Xuất proxy LAN - toàn bộ</DropdownMenuItem>
-            <DropdownMenuItem disabled={selectedCount === 0}>
-              Xuất proxy LAN - {selectedCount} proxy đã chọn
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+  const showExportModal = (type: "original" | "local") => {
+    let res: StringableServer[];
 
-        <Button
-          disabled={selectedCount === 0}
-          variant="outline"
-          onClick={() =>
-            deleteServers(
-              Object.keys(rowSelection).map((k) => servers[Number(k)]),
-            )
-          }
-        >
-          <TrashIcon className="text-destructive" /> Xóa {selectedCount} proxy
-        </Button>
-      </div>
-    ),
-    [selectedCount],
+    if (type === "original") {
+      res = exportingServers.map((s) => s.Server).filter(Boolean);
+    } else {
+      res = exportingServers.map((s) => ({
+        Host: localIp ?? "localhost",
+        Protocols: {
+          [PROTOCOLS.HTTP]: true,
+          [PROTOCOLS.SOCKS5]: true,
+        },
+        ...s.Server?.Auth,
+      }));
+    }
+
+    setProxyExportContent(res.map(getServerString).join("\n"));
+    setExportModalOpen(true);
+  };
+
+  const actions = (
+    <div className="flex justify-start gap-1">
+      <Button>
+        <PlusIcon /> Thêm proxy
+      </Button>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline">
+            <DownloadIcon /> Xuất proxy
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={() => showExportModal("original")}>
+            Xuất proxy gốc - toàn bộ
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => showExportModal("original")}
+            disabled={selectedCount === 0}
+          >
+            Xuất proxy gốc - {selectedCount} proxy đã chọn
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => showExportModal("local")}>
+            Xuất proxy LAN - toàn bộ
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => showExportModal("local")}
+            disabled={selectedCount === 0}
+          >
+            Xuất proxy LAN - {selectedCount} proxy đã chọn
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Button
+        disabled={selectedCount === 0}
+        variant="outline"
+        onClick={() => deleteServers(selectedServers)}
+      >
+        <TrashIcon className="text-destructive" /> Xóa {selectedCount} proxy
+      </Button>
+    </div>
   );
 
   return (
-    <div>
-      <DataTable title="Proxy nguồn" table={table} actions={actions} />
-    </div>
+    <>
+      <div>
+        <DataTable title="Proxy nguồn" table={table} actions={actions} />
+      </div>
+
+      <Dialog
+        open={exportModalOpen}
+        onOpenChange={setExportModalOpen}
+        modal={true}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Xuất proxy</DialogTitle>
+          </DialogHeader>
+
+          <Textarea
+            value={Array(20).fill(proxyExportContent).join("\n")}
+            rows={15}
+            readOnly
+            className="overflow-hidden"
+            style={{
+              maskImage:
+                "linear-gradient(to bottom, hsl(var(--background)) 50%, transparent 100%)",
+            }}
+          />
+
+          <DialogFooter>
+            <CopyTooltip
+              copyData={[proxyExportContent]}
+              onCopy={() => setExportModalOpen(false)}
+            >
+              <Button>Sao chép</Button>
+            </CopyTooltip>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

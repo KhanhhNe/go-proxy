@@ -286,6 +286,7 @@ const DataTable = <T,>({
 };
 
 const useTable = <T,>(opts: TableOptions<T>) =>
+  // eslint-disable-next-line react-hooks/incompatible-library
   useReactTable({
     ...opts,
     columns: [
