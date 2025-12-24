@@ -38,6 +38,7 @@ import {
   getPaginationRowModel,
   RowSelectionState,
 } from "@tanstack/react-table";
+import saveAs from "file-saver";
 import {
   ClipboardIcon,
   DownloadIcon,
@@ -254,6 +255,10 @@ export function PageServers() {
   const deleteServers = useDeleteServers();
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [proxyExportContent, setProxyExportContent] = useState("");
+  const previewExportContent = proxyExportContent
+    .split("\n")
+    .slice(0, 20)
+    .join("\n");
 
   const table = useTable({
     data: servers,
@@ -280,6 +285,7 @@ export function PageServers() {
     } else {
       res = exportingServers.map((s) => ({
         Host: localIp ?? "localhost",
+        Port: s.Server?.Port,
         Protocols: {
           [PROTOCOLS.HTTP]: true,
           [PROTOCOLS.SOCKS5]: true,
@@ -290,6 +296,16 @@ export function PageServers() {
 
     setProxyExportContent(res.map(getServerString).join("\n"));
     setExportModalOpen(true);
+  };
+
+  const exportToFile = () => {
+    const blob = new Blob([proxyExportContent], {
+      type: "text/plain;charset=utf-8",
+    });
+    saveAs(
+      blob,
+      `proxies ${exportingServers.length} ${DateTime.now().toLocaleString(DateTime.DATETIME_SHORT)}.txt`,
+    );
   };
 
   const actions = (
@@ -353,7 +369,7 @@ export function PageServers() {
           </DialogHeader>
 
           <Textarea
-            value={Array(20).fill(proxyExportContent).join("\n")}
+            value={Array(20).fill(previewExportContent).join("\n")}
             rows={15}
             readOnly
             className="overflow-hidden"
@@ -368,8 +384,13 @@ export function PageServers() {
               copyData={[proxyExportContent]}
               onCopy={() => setExportModalOpen(false)}
             >
-              <Button>Sao chép</Button>
+              <Button>
+                <ClipboardIcon /> Sao chép
+              </Button>
             </CopyTooltip>
+            <Button onClick={exportToFile}>
+              <DownloadIcon /> Lưu file
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
