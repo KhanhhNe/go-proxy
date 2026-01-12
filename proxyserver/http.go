@@ -33,7 +33,7 @@ func (s *Server) connectHttp(target string) (net.Conn, error) {
 		req.Header.Add("proxy-authorization", "Basic "+s.Auth.Base64())
 	}
 
-	err = req.Write(conn)
+	err = req.WriteProxy(conn)
 	if err != nil {
 		return nil, errtrace.Wrap(err)
 	}

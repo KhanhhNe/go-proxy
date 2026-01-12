@@ -1,5 +1,6 @@
 import { Tag } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +14,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DataTable, useTable } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { CopyableSpan, CopyTooltip } from "@/components/ui/tooltip";
@@ -31,11 +41,18 @@ import {
   useManagerStore,
 } from "@/state";
 import { ManagedProxyServer } from "@bindings/go-proxy";
-import { DeleteListeners, DeleteServers } from "@bindings/go-proxy/myservice";
+import {
+  DeleteListeners,
+  DeleteServers,
+  ImportProxyFile,
+  ParseProxyLine,
+  RecheckServer,
+} from "@bindings/go-proxy/myservice";
 import {
   ColumnDef,
   getCoreRowModel,
   getPaginationRowModel,
+  PaginationState,
   RowSelectionState,
 } from "@tanstack/react-table";
 import saveAs from "file-saver";
@@ -43,11 +60,12 @@ import {
   ClipboardIcon,
   DownloadIcon,
   PlusIcon,
+  RotateCcw,
   TrashIcon,
   XIcon,
 } from "lucide-react";
 import { DateTime, Duration } from "luxon";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const useColumns = () => {
   const { recheckInterval, listeners } = useManagerStore((state) => ({
@@ -209,6 +227,14 @@ const useColumns = () => {
             <Button
               size="icon"
               variant="outline"
+              onClick={() => RecheckServer(row.original.Server!.Id)}
+            >
+              <RotateCcw />
+            </Button>
+
+            <Button
+              size="icon"
+              variant="outline"
               onClick={() => deleteServers([row.original])}
             >
               <XIcon className="text-destructive" />
@@ -251,6 +277,10 @@ export function PageServers() {
   }));
   const localIp = useAppStateStore((state) => state.state?.LocalIp);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
   const columns = useColumns();
   const deleteServers = useDeleteServers();
   const [exportModalOpen, setExportModalOpen] = useState(false);
@@ -260,14 +290,88 @@ export function PageServers() {
     .slice(0, 20)
     .join("\n");
 
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [importContent, setImportContent] = useState("");
+  const [separator, setSeparator] = useState(";");
+  const [userChangedSeparator, setUserChangedSeparator] = useState(false);
+  const [skipCount, setSkipCount] = useState(0);
+  const [skipHeader, setSkipHeader] = useState(false);
+  const [defaultPort, setDefaultPort] = useState(22);
+
+  const [importPreview, setImportPreview] = useState<StringableServer | null>(
+    null,
+  );
+
+  const handleImportModalOpenChange = (open: boolean) => {
+    setImportModalOpen(open);
+    if (!open) {
+      setImportContent("");
+      setSeparator(";");
+      setUserChangedSeparator(false);
+      setSkipCount(0);
+      setSkipHeader(false);
+      setDefaultPort(22);
+      setImportPreview(null);
+    }
+  };
+
+  const detectMostCommonSeparator = (content: string): string => {
+    const separators = [";", "|", ":", ","];
+    let mostCommon = ";";
+    let maxCount = 0;
+
+    for (const sep of separators) {
+      const count = content.split(sep).length - 1;
+      if (count > maxCount) {
+        maxCount = count;
+        mostCommon = sep;
+      }
+    }
+
+    return maxCount > 0 ? mostCommon : ";";
+  };
+
+  const handleImportContentChange = (content: string) => {
+    setImportContent(content);
+    if (!userChangedSeparator && content) {
+      setSeparator(detectMostCommonSeparator(content));
+    }
+  };
+
+  useEffect(() => {
+    const lines = importContent.split("\n");
+    const line = lines.slice(skipHeader ? 1 : 0)[0];
+    if (line) {
+      ParseProxyLine(line, separator, skipCount, defaultPort).then(
+        setImportPreview,
+      );
+    } else {
+      setTimeout(() => setImportPreview(null));
+    }
+  }, [defaultPort, importContent, separator, skipCount, skipHeader]);
+
+  const handleImport = () => {
+    ImportProxyFile(
+      importContent,
+      separator,
+      skipCount,
+      defaultPort,
+      skipHeader,
+    ).then(() => {
+      handleImportModalOpenChange(false);
+    });
+  };
+
   const table = useTable({
     data: servers,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onRowSelectionChange: setRowSelection,
+    onPaginationChange: setPagination,
     state: {
       rowSelection,
+      pagination,
     },
   });
 
@@ -310,7 +414,7 @@ export function PageServers() {
 
   const actions = (
     <div className="flex justify-start gap-1">
-      <Button>
+      <Button onClick={() => handleImportModalOpenChange(true)}>
         <PlusIcon /> Thêm proxy
       </Button>
 
@@ -359,10 +463,162 @@ export function PageServers() {
       </div>
 
       <Dialog
-        open={exportModalOpen}
-        onOpenChange={setExportModalOpen}
-        modal={true}
+        open={importModalOpen}
+        onOpenChange={handleImportModalOpenChange}
+        modal
       >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nhập proxy</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="import-content" className="text-sm font-medium">
+                Nội dung file proxy (
+                {importContent.trim().split("\n").filter(Boolean).length -
+                  (skipHeader ? 1 : 0)}{" "}
+                dòng)
+              </Label>
+              <Textarea
+                id="import-content"
+                value={importContent}
+                onChange={(e) => handleImportContentChange(e.target.value)}
+                placeholder="Dán proxy ở đây"
+                rows={8}
+              />
+            </div>
+
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <Label htmlFor="separator" className="text-sm font-medium">
+                  Phân cách
+                </Label>
+                <Select
+                  value={separator}
+                  onValueChange={(v) => {
+                    setSeparator(v);
+                    setUserChangedSeparator(true);
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    <SelectItem value=";">;</SelectItem>
+                    <SelectItem value="|">|</SelectItem>
+                    <SelectItem value=":">:</SelectItem>
+                    <SelectItem value=",">,</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1">
+                <Label htmlFor="skip-count" className="text-sm font-medium">
+                  Bỏ qua cột
+                </Label>
+                <Input
+                  id="skip-count"
+                  type="number"
+                  min={0}
+                  value={skipCount}
+                  onChange={(e) => setSkipCount(Number(e.target.value))}
+                  className="w-full"
+                />
+              </div>
+              <div className="flex-1">
+                <Label htmlFor="default-port" className="text-sm font-medium">
+                  Port mặc định
+                </Label>
+                <Input
+                  id="default-port"
+                  type="number"
+                  min={1}
+                  value={defaultPort}
+                  onChange={(e) => setDefaultPort(Number(e.target.value) || 0)}
+                  className="w-full"
+                />
+              </div>
+              <div className="flex flex-col items-start gap-2">
+                <Label htmlFor="skip-header" className="text-sm">
+                  Bỏ qua dòng đầu
+                </Label>
+                <Checkbox
+                  id="skip-header"
+                  checked={skipHeader}
+                  onCheckedChange={(v) => setSkipHeader(!!v)}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-3 rounded border bg-secondary/30 p-3">
+              <p className="text-sm font-medium">Preview</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="preview-host" className="text-xs">
+                    Host
+                  </Label>
+                  <Input
+                    id="preview-host"
+                    type="text"
+                    value={importPreview?.Host ?? ""}
+                    disabled
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="preview-port" className="text-xs">
+                    Port
+                  </Label>
+                  <Input
+                    id="preview-port"
+                    type="text"
+                    value={importPreview?.Port ?? ""}
+                    disabled
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="preview-user" className="text-xs">
+                    User
+                  </Label>
+                  <Input
+                    id="preview-user"
+                    type="text"
+                    value={importPreview?.Auth?.Username ?? ""}
+                    disabled
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="preview-pass" className="text-xs">
+                    Pass
+                  </Label>
+                  <Input
+                    id="preview-pass"
+                    type="text"
+                    value={importPreview?.Auth?.Password ?? ""}
+                    disabled
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => handleImportModalOpenChange(false)}
+            >
+              Hủy
+            </Button>
+            <Button onClick={handleImport}>Nhập</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={exportModalOpen} onOpenChange={setExportModalOpen} modal>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Xuất proxy</DialogTitle>

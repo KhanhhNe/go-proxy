@@ -127,7 +127,7 @@ func (s *Server) CheckServer() {
 
 		copy := NewServer(s.Host, s.Port, s.Auth)
 		copy.Protocols[proto] = true
-		copy.skipLogging = true
+		// copy.skipLogging = true
 
 		wg.Add(1)
 		go func(p string, c *Server) {

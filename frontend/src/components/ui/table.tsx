@@ -230,6 +230,7 @@ const DataTable = <T,>({
     <div className={cn("flex flex-col gap-2", className)} ref={ref}>
       <div className="text-2xl font-bold">{title}</div>
       {actions}
+      <DataTablePagination table={table} />
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
@@ -258,7 +259,7 @@ const DataTable = <T,>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="whitespace-nowrap">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),
@@ -280,7 +281,6 @@ const DataTable = <T,>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
     </div>
   );
 };

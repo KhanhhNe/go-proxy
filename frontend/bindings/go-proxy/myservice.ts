@@ -7,6 +7,10 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as proxyserver$0 from "./proxyserver/models.js";
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as $models from "./models.js";
 
 export function DeleteListeners(ports: number[]): $CancellablePromise<void> {
@@ -29,7 +33,23 @@ export function GetManager(): $CancellablePromise<$models.listenerServerManager 
     });
 }
 
+export function ImportProxyFile(content: string, sep: string, skipCol: number, defaultPort: number, skipHeader: boolean): $CancellablePromise<void> {
+    return $Call.ByName("main.MyService.ImportProxyFile", content, sep, skipCol, defaultPort, skipHeader);
+}
+
+export function ParseProxyLine(proxyStr: string, sep: string, skip: number, defaultPort: number): $CancellablePromise<proxyserver$0.Server | null> {
+    return $Call.ByName("main.MyService.ParseProxyLine", proxyStr, sep, skip, defaultPort).then(($result: any) => {
+        return $$createType4($result);
+    });
+}
+
+export function RecheckServer(id: string): $CancellablePromise<void> {
+    return $Call.ByName("main.MyService.RecheckServer", id);
+}
+
 // Private type creation functions
 const $$createType0 = $models.AppState.createFrom;
 const $$createType1 = $models.listenerServerManager.createFrom;
 const $$createType2 = $Create.Nullable($$createType1);
+const $$createType3 = proxyserver$0.Server.createFrom;
+const $$createType4 = $Create.Nullable($$createType3);

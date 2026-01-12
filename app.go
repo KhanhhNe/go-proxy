@@ -6,6 +6,8 @@ import (
 	"go-proxy/common"
 	"go-proxy/proxyserver"
 	"net"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -66,6 +68,10 @@ func (s *MyService) ServiceStartup(ctx context.Context, options application.Serv
 		proxyserver.NewServer("64.137.75.244", 6164, &common.ProxyAuth{
 			Username: "fuaultwx",
 			Password: "frqbhyi7fs1a",
+		}),
+		proxyserver.NewServer("p.webshare.io", 80, &common.ProxyAuth{
+			Username: "teuuumot12z-1",
+			Password: "xjlhl0qpepassf",
 		}),
 	})
 
@@ -133,6 +139,60 @@ func (s *MyService) DeleteListeners(ports []int) {
 		delete(ListenerServerManager.Listeners, port)
 		common.DataMutex.Unlock()
 	}
+}
+
+func (s *MyService) ImportProxyFile(content, sep string, skipCol, defaultPort int, skipHeader bool) error {
+	content = strings.TrimSpace(content)
+	lines := strings.Split(content, "\n")
+	if skipHeader {
+		lines = lines[1:]
+	}
+
+	servers := make([]*proxyserver.Server, 0, len(lines))
+	for _, line := range lines {
+		s := s.ParseProxyLine(line, sep, skipCol, defaultPort)
+		if s != nil {
+			servers = append(servers, s)
+		}
+	}
+
+	return ListenerServerManager.AddServers(servers)
+}
+
+func (s *MyService) ParseProxyLine(proxyStr, sep string, skip int, defaultPort int) *proxyserver.Server {
+	parts := strings.Split(proxyStr, sep)
+	parts = parts[skip:]
+
+	host := ""
+	port := 0
+	var auth *common.ProxyAuth = nil
+
+	for i, p := range parts {
+		switch i {
+		case 0:
+			host = p
+		case 1:
+			prt, err := strconv.Atoi(p)
+			if err == nil {
+				port = prt
+			}
+		case 2:
+			auth = &common.ProxyAuth{}
+			auth.Username = p
+		case 3:
+			auth.Password = p
+		}
+	}
+
+	if port == 0 {
+		port = defaultPort
+	}
+
+	return proxyserver.NewServer(host, port, auth)
+}
+
+func (s *MyService) RecheckServer(id string) {
+	ListenerServerManager.Servers[id].checkServer()
 }
 
 func getLocalIp() string {
